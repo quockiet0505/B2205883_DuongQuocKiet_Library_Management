@@ -30,11 +30,7 @@ const borrowSchema = new mongoose.Schema(
       enum: ["processing", "accepted", "refused", "returned"],
       default: "processing",
     },
-    deleted: {
-      type: Boolean,
-      default: false,
-    },
-    deletedAt: Date,
+    
   },
   { timestamps: true }
 );

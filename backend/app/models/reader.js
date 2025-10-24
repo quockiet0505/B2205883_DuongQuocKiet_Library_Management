@@ -41,11 +41,7 @@ const readerSchema = new mongoose.Schema(
     token: {
       type: String, 
     },
-    deleted: {
-      type: Boolean,
-      default: false,
-    },
-    deletedAt: Date,
+    
   },
   { timestamps: true }
 );

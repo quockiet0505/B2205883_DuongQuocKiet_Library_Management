@@ -43,11 +43,7 @@ const bookSchema = new mongoose.Schema(
       slug: "title",
       unique: true,
     },
-    deleted: {
-      type: Boolean,
-      default: false,
-    },
-    deletedAt: Date,
+   
   },
   { timestamps: true }
 );

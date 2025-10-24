@@ -20,11 +20,7 @@ const publisherSchema = new mongoose.Schema(
     email: {
       type: String,
     },
-    deleted: {
-      type: Boolean,
-      default: false,
-    },
-    deletedAt: Date,
+    
   },
   { timestamps: true }
 );
