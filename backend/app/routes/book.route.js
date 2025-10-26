@@ -14,7 +14,7 @@ router.get("/:id", BookController.getBookById);
 // Update book by ID
 router.put("/:id", BookController.updateBook);
 
-// Delete book by ID (soft delete)
+// Delete book by ID 
 router.delete("/:id", BookController.deleteBook);
 
 module.exports = router;

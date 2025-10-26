@@ -15,7 +15,7 @@ router.get('/:id', BorrowController.getBorrowById);
 // Cap nhat phieu muon
 router.put('/:id', BorrowController.updateBorrow);
 
-// Xoa phieu muon (soft delete)
+// Xoa phieu muon
 router.delete('/:id', BorrowController.deleteBorrow);
 
 module.exports = router;
