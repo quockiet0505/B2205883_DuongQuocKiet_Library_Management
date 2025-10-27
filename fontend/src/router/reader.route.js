@@ -1,10 +1,10 @@
 // src/router/reader.route.js
-import Home from '../views/reader/Home.vue';
-import BookDetail from '../views/reader/BookDetail.vue';
-import BorrowHistory from '../views/reader/BorrowHistory.vue';
-import Profile from '../views/reader/Profile.vue';
-import Login from '../views/reader/Login.vue';
-import Register from '../views/reader/Register.vue';
+import Home from '@/views/reader/Home.vue';
+import BookDetail from '@/views/reader/BookDetail.vue';
+import BorrowHistory from '@/views/reader/BorrowHistory.vue';
+import Profile from '@/views/reader/Profile.vue';
+import Login from '@/views/reader/Login.vue';
+import Register from '@/views/reader/Register.vue';
 
 export const readerRoutes = [
   {

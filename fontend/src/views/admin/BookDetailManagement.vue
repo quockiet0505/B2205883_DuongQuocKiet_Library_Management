@@ -2,7 +2,7 @@
      <div>
        <AppHeader />
        <div class="container mt-4">
-         <BorrowList :borrows="borrows" />
+         <BookDetail :book="book" />
        </div>
        <AppFooter />
      </div>
@@ -11,18 +11,17 @@
    <script>
    import AppHeader from "@/components/admin/AppHeader.vue";
    import AppFooter from "@/components/admin/AppFooter.vue";
-   import BorrowList from "@/components/admin/BorrowList.vue";
-   import { mapGetters } from "vuex";
+   import BookDetail from "@/components/admin/BookDetail.vue";
+   import axios from "axios";
    
    export default {
-     components: { AppHeader, AppFooter, BorrowList },
-     computed: mapGetters("admin", ["allBorrows"]),
      data() {
-       return { borrows: [] };
+       return { book: null };
      },
      async created() {
-       await this.$store.dispatch("admin/fetchBorrows");
-       this.borrows = this.allBorrows;
+       const id = this.$route.params.id;
+       const res = await axios.get(`/api/books/${id}`);
+       this.book = res.data;
      },
    };
    </script>

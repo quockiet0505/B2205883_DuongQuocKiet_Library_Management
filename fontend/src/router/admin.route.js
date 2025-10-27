@@ -1,11 +1,11 @@
 // src/router/admin.route.js
-import Dashboard from '../views/admin/Dashboard.vue';
-import BookManagement from '../views/admin/BookManagement.vue';
-import BorrowManagement from '../views/admin/BorrowManagement.vue';
-import PublisherManagement from '../views/admin/PublisherManagement.vue';
-import ReaderManagement from '../views/admin/ReaderManagement.vue';
-import Login from '../views/admin/Login.vue';
-import Register from '../views/admin/Register.vue';
+import Dashboard from '@/views/admin/Dashboard.vue';
+import BookManagement from '@/views/admin/BookManagement.vue';
+import BorrowManagement from '@/views/admin/BorrowManagement.vue';
+import PublisherManagement from '@/views/admin/PublisherManagement.vue';
+import ReaderManagement from '@/views/admin/ReaderManagement.vue';
+import Login from '@/views/admin/Login.vue';
+import Register from '@/views/admin/Register.vue';
 
 export const adminRoutes = [
   {
