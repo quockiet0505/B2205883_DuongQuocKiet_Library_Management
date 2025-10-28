@@ -1,19 +1,22 @@
+
 <template>
-     <div class="mb-3">
-       <input
-         type="text"
-         v-model="modelValue"
-         @input="$emit('update:modelValue', modelValue)"
-         class="form-control"
-         placeholder=" Search..."
-       />
-     </div>
-   </template>
-   
-   <script>
-   export default {
-     name: "InputSearch",
-     props: ["modelValue"],
-   };
-   </script>
-   
+  <input
+    type="text"
+    :value="modelValue"
+    @input="$emit('update:modelValue', $event.target.value)"
+    class="form-control"
+    placeholder="Search..."
+  />
+</template>
+
+<script>
+export default {
+  name: "InputSearch",
+  props: {
+    modelValue: {
+      type: String,
+      default: "",
+    },
+  },
+};
+</script>

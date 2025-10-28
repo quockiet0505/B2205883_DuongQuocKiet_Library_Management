@@ -53,4 +53,10 @@ const mutations = {
   setHistory: (state, history) => (state.history = history),
 };
 
-export default { state, getters, actions, mutations };
+export default { 
+  namespaced: true,
+  state, 
+  getters, 
+  actions, 
+  mutations 
+};

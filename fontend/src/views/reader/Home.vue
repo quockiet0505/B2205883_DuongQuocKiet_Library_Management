@@ -1,10 +1,10 @@
-<!-- src/views/reader/Home.vue -->
+
 <template>
   <div>
     <AppHeader />
     <div class="container mt-4">
       <InputSearch v-model="q" />
-      <BookList :books="filtered" />
+      <BookList :books="filteredBooks" />
     </div>
     <AppFooter />
   </div>
@@ -15,22 +15,31 @@ import AppHeader from "@/components/reader/AppHeader.vue";
 import AppFooter from "@/components/reader/AppFooter.vue";
 import InputSearch from "@/components/reader/InputSearch.vue";
 import BookList from "@/components/reader/BookList.vue";
-import { useBookStore } from "@/store/bookStore";
+import { mapGetters, mapActions } from "vuex";
 
 export default {
   name: "ReaderHome",
   components: { AppHeader, AppFooter, InputSearch, BookList },
-  data() { return { q: "" }; },
-  computed: {
-    filtered() {
-      if (!this.q) return this.bookStore.books;
-      const q = this.q.toLowerCase();
-      return this.bookStore.books.filter(b => (b.title||"").toLowerCase().includes(q) || (b.author||"").toLowerCase().includes(q));
-    }
+  data() {
+    return { q: "" };
   },
-  created() {
-    this.bookStore = useBookStore();
-    this.bookStore.loadAll();
-  }
+  computed: {
+    ...mapGetters("reader", ["allBooks"]),
+    filteredBooks() {
+      if (!this.q) return this.allBooks;
+      const q = this.q.toLowerCase();
+      return this.allBooks.filter(
+        (b) =>
+          (b.title || "").toLowerCase().includes(q) ||
+          (b.author || "").toLowerCase().includes(q)
+      );
+    },
+  },
+  async created() {
+    await this.fetchBooks();
+  },
+  methods: {
+    ...mapActions("reader", ["fetchBooks"]),
+  },
 };
 </script>
