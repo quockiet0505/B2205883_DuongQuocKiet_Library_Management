@@ -17,3 +17,5 @@ router.put('/:id', ReaderController.updateReader);
 
 // delete a reader by id
 router.delete('/:id', ReaderController.deleteReader);
+
+module.exports = router;

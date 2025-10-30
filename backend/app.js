@@ -2,14 +2,14 @@ const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 
-const authRoutes = require("../routes/auth.route");
-const bookRoutes = require("../routes/book.route");
-const borrowRoutes = require("../routes/borrow.route");
-const publisherRoutes = require("../routes/publisher.route");
-const readerRoutes = require("../routes/reader.route");
-const staffRoutes = require("../routes/staff.route");
+const authRoutes = require("./app/routes/auth.route");
+const bookRoutes = require("./app/routes/book.route");
+const borrowRoutes = require("./app/routes/borrow.route");
+const publisherRoutes = require("./app/routes/publisher.route");
+const readerRoutes = require("./app/routes/reader.route");
+const staffRoutes = require("./app/routes/staff.route");
 
-const errorHandler = require("../middleware/error.middleware");
+const errorHandler = require("./app/middlewares/error.middleware");
 
 const app = express();
 
