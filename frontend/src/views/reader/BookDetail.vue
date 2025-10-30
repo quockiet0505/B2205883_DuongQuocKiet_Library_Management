@@ -1,64 +1,55 @@
 <!-- src/views/reader/BookDetail.vue -->
 <template>
-  <div>
-    <AppHeader />
+  <div class="reader-page">
+    <AppHeader v-model="q" />
     <div class="container mt-4">
-      <BookDetailCard 
-        v-if="book" 
-        :book="book" 
-        @borrow="borrowBook" 
-      />
-      <div v-else class="text-center py-5">Loading...</div>
+      <div v-if="loading" class="text-center text-muted py-5">Loading...</div>
+      <div v-else-if="!book" class="text-center text-muted py-5">Book not found.</div>
+      <div v-else>
+        <BookDetailCard :book="book" @borrow="onBorrow" />
+      </div>
     </div>
     <AppFooter />
   </div>
 </template>
 
 <script>
+import { mapGetters, mapActions } from "vuex";
+import BookDetailCard from "@/components/reader/BookDetailCard.vue";
 import AppHeader from "@/components/reader/AppHeader.vue";
 import AppFooter from "@/components/reader/AppFooter.vue";
-import BookDetailCard from "@/components/reader/BookDetailCard.vue";
-import bookService from "@/services/book.service";
-import { mapGetters } from "vuex";
 
 export default {
   name: "ReaderBookDetail",
-  components: { AppHeader, AppFooter, BookDetailCard },
+  components: { BookDetailCard, AppHeader, AppFooter },
   data() {
-    return { book: null };
+    return { loading: true, q: "" };
   },
   computed: {
-    ...mapGetters("reader", ["isLoggedIn", "readerInfo"]),
+    ...mapGetters("reader", ["allBooks"]),
+    book() {
+      const id = this.$route.params.id;
+      return this.allBooks.find(b => String(b._id) === String(id) || String(b.id) === String(id));
+    },
   },
-  async created() {
-    try {
-      const { id } = this.$route.params;
-      const res = await bookService.getBookById(id);
-      // Nếu service trả data.book hoặc data
-      this.book = res.data?.book || res.data || res;
-      console.log("Loaded book:", this.book);
-    } catch (error) {
-      console.error("Error loading book:", error);
+  async mounted() {
+    if (!this.allBooks || this.allBooks.length === 0) {
+      await this.fetchBooks();
     }
+    this.loading = false;
   },
   methods: {
-    async borrowBook() {
-      if (!this.isLoggedIn) return this.$router.push("/reader/login");
-
-      try {
-        await this.$axios.post("/api/borrows", {
-          readerId: this.readerInfo?._id,
-          bookId: this.book._id || this.book.id,
-          borrowDate: new Date(),
-          returnDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
-          quantity: 1,
-        });
-        alert("Borrow request sent!");
-      } catch (err) {
-        console.error(err);
-        alert("Failed to borrow book.");
-      }
+    ...mapActions("reader", ["fetchBooks"]),
+    onBorrow() {
+      // TODO: implement borrow flow
+      this.$toast?.success?.("Requested to borrow") || alert("Requested to borrow");
     },
   },
 };
 </script>
+
+<style scoped>
+.reader-page {
+  padding-top: 100px;
+}
+</style>

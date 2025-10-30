@@ -1,4 +1,3 @@
-
 <template>
   <div class="card h-100 shadow-sm border-0">
     <img :src="book.thumbnail || defaultImage" class="card-img-top" alt="cover" style="height:220px;object-fit:cover" />
@@ -7,7 +6,7 @@
       <p class="small text-muted mb-1">Author: {{ book.author }}</p>
       <p class="small text-muted mb-2">Price: {{ formatPrice(book.price) }}</p>
       <div class="mt-auto text-center">
-        <router-link :to="`/reader/book/${book.id}`" class="btn btn-sm btn-primary">View Details</router-link>
+        <router-link :to="{ name: 'ReaderBookDetail', params: { id: book._id || book.id } }" class="btn btn-sm btn-primary">View Details</router-link>
       </div>
     </div>
   </div>

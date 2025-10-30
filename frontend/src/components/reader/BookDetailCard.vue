@@ -1,4 +1,3 @@
-
 <template>
      <div v-if="book" class="card p-4 shadow-sm">
        <div class="row g-3">
@@ -14,7 +13,6 @@
            <p><b>Quantity:</b> {{ book.quantity }}</p>
            <div class="mt-3">
              <button class="btn btn-primary me-2" @click="$emit('borrow')">Borrow Book</button>
-             <router-link class="btn btn-outline-secondary" :to="{ name: 'reader-home' }">Back to Home</router-link>
            </div>
          </div>
        </div>
@@ -29,4 +27,3 @@
      methods: { formatPrice(v) { if (v == null) return "-"; return new Intl.NumberFormat().format(v) + "₫"; } },
    };
    </script>
-   
