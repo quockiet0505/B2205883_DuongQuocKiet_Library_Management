@@ -25,36 +25,38 @@ export default {
   name: "ReaderBookDetail",
   components: { AppHeader, AppFooter, BookDetailCard },
   data() {
-    return {
-      book: null,
-    };
+    return { book: null };
   },
   computed: {
     ...mapGetters("reader", ["isLoggedIn", "readerInfo"]),
   },
   async created() {
-    const { id } = this.$route.params;
-    this.book = await bookService.getBookById(id);
+    try {
+      const { id } = this.$route.params;
+      const res = await bookService.getBookById(id);
+      // Nếu service trả data.book hoặc data
+      this.book = res.data?.book || res.data || res;
+      console.log("Loaded book:", this.book);
+    } catch (error) {
+      console.error("Error loading book:", error);
+    }
   },
   methods: {
     async borrowBook() {
-      if (!this.isLoggedIn) {
-        this.$router.push("/reader/login");
-        return;
-      }
+      if (!this.isLoggedIn) return this.$router.push("/reader/login");
+
       try {
-        // Gửi yêu cầu mượn sách
         await this.$axios.post("/api/borrows", {
           readerId: this.readerInfo?._id,
-          bookId: this.book._id,
+          bookId: this.book._id || this.book.id,
           borrowDate: new Date(),
           returnDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
           quantity: 1,
         });
         alert("Borrow request sent!");
-      } catch (error) {
-        console.error(error);
-        alert("Failed to borrow.");
+      } catch (err) {
+        console.error(err);
+        alert("Failed to borrow book.");
       }
     },
   },

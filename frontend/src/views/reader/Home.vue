@@ -1,24 +1,32 @@
 <template>
-  <div>
-    <AppHeader />
+  <div class="reader-home">
+    <!-- Header có thanh search -->
+    <AppHeader v-model="q" />
+
+    <!-- Nội dung chính -->
     <div class="container mt-4">
-      <InputSearch v-model="q" />
       <BookList :books="filteredBooks" />
     </div>
+
     <AppFooter />
   </div>
 </template>
 
+<style scoped>
+.reader-home {
+  padding-top: 100px; /* hoặc 80px tùy chiều cao header */
+}
+</style>
+
 <script>
 import AppHeader from "@/components/reader/AppHeader.vue";
 import AppFooter from "@/components/reader/AppFooter.vue";
-import InputSearch from "@/components/reader/InputSearch.vue";
 import BookList from "@/components/reader/BookList.vue";
 import { mapGetters, mapActions } from "vuex";
 
 export default {
   name: "ReaderHome",
-  components: { AppHeader, AppFooter, InputSearch, BookList },
+  components: { AppHeader, AppFooter, BookList },
   data() {
     return { q: "" };
   },
@@ -36,7 +44,6 @@ export default {
   },
   async mounted() {
     await this.fetchBooks();
-    console.log("Books loaded:", this.allBooks);
   },
   methods: {
     ...mapActions("reader", ["fetchBooks"]),

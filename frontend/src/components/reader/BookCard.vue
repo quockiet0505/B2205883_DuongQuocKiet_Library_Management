@@ -7,7 +7,7 @@
       <p class="small text-muted mb-1">Author: {{ book.author }}</p>
       <p class="small text-muted mb-2">Price: {{ formatPrice(book.price) }}</p>
       <div class="mt-auto text-center">
-        <router-link :to="`/reader/book/${book._id}`" class="btn btn-sm btn-primary">View Details</router-link>
+        <router-link :to="`/reader/book/${book.id}`" class="btn btn-sm btn-primary">View Details</router-link>
       </div>
     </div>
   </div>
