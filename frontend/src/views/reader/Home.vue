@@ -15,7 +15,7 @@ export default {
   name: "ReaderHome",
   components: { ReaderLayout, BookList },
   data() {
-    return { q: "" }; // Giá trị search
+    return { q: "" };
   },
   computed: {
     ...mapGetters("reader", ["allBooks"]),

@@ -6,7 +6,7 @@ const authRoutes = require("./app/routes/auth.route");
 const bookRoutes = require("./app/routes/book.route");
 const borrowRoutes = require("./app/routes/borrow.route");
 const publisherRoutes = require("./app/routes/publisher.route");
-const readerRoutes = require("./app/routes/reader.routes");
+const readerRoutes = require("./app/routes/reader.route");
 const staffRoutes = require("./app/routes/staff.route");
 
 const errorHandler = require("./app/middlewares/error.middleware");
@@ -21,15 +21,11 @@ app.use(morgan("dev"));
 
 // 
 app.use("/api/auth", authRoutes);
-app.use("/api/books", bookRoutes);
-app.use("/api/borrows", borrowRoutes);
-app.use("/api/publishers", publisherRoutes);
-app.use("/api/readers", readerRoutes);
-
-
-app.use("/api/reader", readerRoutes);
-
-app.use("/api/staffs", staffRoutes);
+app.use("/api/book", bookRoutes); 
+app.use("/api/borrow", borrowRoutes);
+app.use("/api/publisher", publisherRoutes);
+app.use("/api/reader", readerRoutes);  
+app.use("/api/staff", staffRoutes);
 
 // Middleware xử lý lỗi
 app.use(errorHandler);

@@ -6,7 +6,6 @@ export default{
             return res.data;
      },
 
-     // gọi hàm này
      async getReaderById(id){
             const res = await api.get(`/reader/${id}`);
             return res.data;
@@ -17,7 +16,6 @@ export default{
             return res.data;
      },
 
-     // gọi hàm này khi save
      async updateReader(id, data){
             const res = await api.put(`/reader/${id}`, data);
             return res.data;

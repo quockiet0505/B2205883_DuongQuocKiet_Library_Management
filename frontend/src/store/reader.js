@@ -56,7 +56,7 @@ const actions = {
   },
 
   async fetchBooks({ commit }) {
-    const res = await axios.get("/api/books");
+    const res = await axios.get("/api/book");
     commit("setBooks", res.data);
   },
 

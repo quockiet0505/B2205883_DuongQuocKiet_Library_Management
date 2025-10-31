@@ -35,67 +35,67 @@ const actions = {
 
   // ----------------- BOOK -----------------
   async fetchBooks({ commit }) {
-    const res = await axios.get("/api/books");
+    const res = await axios.get("/api/book");
     commit("setBooks", res.data);
   },
 
   // ----------------- READER -----------------
   async fetchReaders({ commit }) {
-    const res = await axios.get("/api/readers");
+    const res = await axios.get("/api/reader");
     commit("setReaders", res.data);
   },
 
   // ----------------- BORROW -----------------
   async fetchBorrows({ commit }) {
-    const res = await axios.get("/api/borrows");
+    const res = await axios.get("/api/borrow");
     commit("setBorrows", res.data);
   },
 
   // ----------------- DASHBOARD -----------------
-  async fetchStats({ commit }) {
-    const res = await axios.get("/api/admin/stats");
-    commit("setStats", res.data);
-  },
+  // async fetchStats({ commit }) {
+  //   const res = await axios.get("/api/admin/stat");
+  //   commit("setStats", res.data);
+  // },
 
   // ----------------- PUBLISHER -----------------
   async fetchPublishers({ commit }) {
-    const res = await axios.get("/api/publishers");
+    const res = await axios.get("/api/publisher");
     commit("setPublishers", res.data);
   },
 
   async addPublisher({ dispatch }, data) {
-    await axios.post("/api/publishers", data);
+    await axios.post("/api/publisher", data);
     dispatch("fetchPublishers");
   },
 
   async updatePublisher({ dispatch }, { id, data }) {
-    await axios.put(`/api/publishers/${id}`, data);
+    await axios.put(`/api/publisher/${id}`, data);
     dispatch("fetchPublishers");
   },
 
   async deletePublisher({ dispatch }, id) {
-    await axios.delete(`/api/publishers/${id}`);
+    await axios.delete(`/api/publisher/${id}`);
     dispatch("fetchPublishers");
   },
 
   // ----------------- STAFF -----------------
   async fetchStaffs({ commit }) {
-    const res = await axios.get("/api/staffs");
+    const res = await axios.get("/api/staff");
     commit("setStaffs", res.data);
   },
 
   async registerStaff({ dispatch }, data) {
-    await axios.post("/api/staffs/register", data);
+    await axios.post("/api/staff/register", data);
     dispatch("fetchStaffs");
   },
 
   async updateStaff({ dispatch }, { id, data }) {
-    await axios.put(`/api/staffs/${id}`, data);
+    await axios.put(`/api/staff/${id}`, data);
     dispatch("fetchStaffs");
   },
 
   async deleteStaff({ dispatch }, id) {
-    await axios.delete(`/api/staffs/${id}`);
+    await axios.delete(`/api/staff/${id}`);
     dispatch("fetchStaffs");
   },
 };
