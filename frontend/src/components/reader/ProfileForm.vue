@@ -1,64 +1,98 @@
-
 <template>
-     <div class="card p-4 shadow-sm">
-       <h4 class="mb-3">Profile</h4>
-       <form @submit.prevent="save">
-         <div class="row">
-           <div class="col-md-6 mb-3">
-             <label class="form-label">First name</label>
-             <input class="form-control" v-model="local.firstName" required />
-           </div>
-           <div class="col-md-6 mb-3">
-             <label class="form-label">Last name</label>
-             <input class="form-control" v-model="local.lastName" required />
-           </div>
-         </div>
-   
-         <div class="row">
-           <div class="col-md-6 mb-3">
-             <label class="form-label">Birth Date</label>
-             <input type="date" class="form-control" v-model="local.birthDate" />
-           </div>
-           <div class="col-md-6 mb-3">
-             <label class="form-label">Gender</label>
-             <select class="form-select" v-model="local.gender">
-               <option value="">Select</option>
-               <option value="Male">Male</option>
-               <option value="Female">Female</option>
-               <option value="Other">Other</option>
-             </select>
-           </div>
-         </div>
-   
-         <div class="mb-3">
-           <label class="form-label">Phone</label>
-           <input class="form-control" v-model="local.phone" />
-         </div>
-   
-         <div class="mb-3">
-           <label class="form-label">Address</label>
-           <input class="form-control" v-model="local.address" />
-         </div>
-   
-         <div class="mb-3">
-           <label class="form-label">Email</label>
-           <input type="email" class="form-control" v-model="local.email" disabled />
-         </div>
-   
-         <button class="btn btn-success w-100">Save changes</button>
-       </form>
-     </div>
-   </template>
-   
-   <script>
-   export default {
-     name: "ProfileForm",
-     props: { reader: { type: Object, required: true } },
-     data() { return { local: { ...this.reader } }; },
-     watch: { reader(v) { this.local = { ...v }; } },
-     methods: {
-       save() { this.$emit("save", { ...this.local }); }
-     },
-   };
-   </script>
-   
+  <div class="profile-form card shadow-sm p-4">
+    <h3 class="mb-4">Thông tin cá nhân</h3>
+    <form @submit.prevent="handleSubmit">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Mã độc giả</label>
+          <input type="text" class="form-control" :value="reader.readerId" disabled />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" :value="reader.email" disabled />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Họ</label>
+          <input v-model="form.lastName" type="text" class="form-control" required />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Tên</label>
+          <input v-model="form.firstName" type="text" class="form-control" required />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Ngày sinh</label>
+          <input v-model="form.birthDate" type="date" class="form-control" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Giới tính</label>
+          <select v-model="form.gender" class="form-select">
+            <option value="">-- Chọn --</option>
+            <option value="Male">Nam</option>
+            <option value="Female">Nữ</option>
+            <option value="Other">Khác</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Số điện thoại</label>
+          <input v-model="form.phone" type="text" class="form-control" />
+        </div>
+        <div class="col-md-12">
+          <label class="form-label">Địa chỉ</label>
+          <textarea v-model="form.address" class="form-control" rows="2"></textarea>
+        </div>
+      </div>
+      <div class="mt-4">
+        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+      </div>
+    </form>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "ProfileForm",
+  props: {
+    reader: { type: Object, required: true },
+  },
+  emits: ["save", "update"],
+  data() {
+    return {
+      form: {
+        lastName: this.reader.lastName || "",
+        firstName: this.reader.firstName || "",
+        birthDate: this.reader.birthDate ? this.reader.birthDate.split("T")[0] : "",
+        gender: this.reader.gender || "",
+        phone: this.reader.phone || "",
+        address: this.reader.address || "",
+      },
+    };
+  },
+  watch: {
+    reader: {
+      handler(val) {
+        this.form.lastName = val.lastName || "";
+        this.form.firstName = val.firstName || "";
+        this.form.birthDate = val.birthDate ? val.birthDate.split("T")[0] : "";
+        this.form.gender = val.gender || "";
+        this.form.phone = val.phone || "";
+        this.form.address = val.address || "";
+      },
+      immediate: true,
+      deep: true,
+    },
+  },
+  methods: {
+    handleSubmit() {
+      this.$emit("save", { ...this.form });
+      this.$emit("update", { ...this.form });
+    },
+  },
+};
+</script>
+
+<style scoped>
+.profile-form {
+  max-width: 800px;
+  margin: 0 auto;
+}
+</style>

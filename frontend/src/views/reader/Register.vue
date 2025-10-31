@@ -1,12 +1,11 @@
-
 <template>
-  <div class="header-register">
-    <AppHeader />
+ 
+    <ReaderLayout />
     <div class="container mt-4">
-      <RegisterForm @register="onRegister" />
+      <RegisterForm :error="error" @register="onRegister" />
     </div>
-    <AppFooter />
-  </div>
+    <ReaderLayout />
+
 </template>
 
 <style scoped>
@@ -17,23 +16,26 @@
 
 <script>
 import RegisterForm from "@/components/reader/RegisterForm.vue";
-import AppHeader from "@/components/reader/AppHeader.vue";
-import AppFooter from "@/components/reader/AppFooter.vue";
-import { mapActions } from "vuex";
+import ReaderLayout from "@/components/reader/ReaderLayout.vue";
+import auth from "@/services/auth.service";
 
 export default {
   name: "ReaderRegister",
-  components: { AppHeader, AppFooter, RegisterForm },
+  components: { ReaderLayout, RegisterForm },
+  data() {
+    return { error: "" };
+  },
   methods: {
-    ...mapActions("reader", ["register"]),
     async onRegister(payload) {
+      this.error = "";
       try {
-        await this.register(payload);
-        alert("Register successful! Please login.");
-        this.$router.push("/reader/login");
+        await auth.registerReader(payload);
+        // ensure not logged in after register
+        auth.logoutReader?.();
+        this.$router.replace("/reader/login");
       } catch (e) {
         console.error(e);
-        alert("Register failed: " + (e.response?.data?.message || e.message));
+        this.error = e?.response?.data?.message || e?.message || "Register failed";
       }
     },
   },

@@ -41,9 +41,16 @@ const readerSchema = new mongoose.Schema(
     token: {
       type: String, 
     },
-    
   },
   { timestamps: true }
 );
+
+// Ẩn password và token khi trả về client
+readerSchema.methods.toJSON = function () {
+  const obj = this.toObject();
+  delete obj.password;
+  delete obj.token;
+  return obj;
+};
 
 module.exports = mongoose.model("Reader", readerSchema);

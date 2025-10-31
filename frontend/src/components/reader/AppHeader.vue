@@ -1,72 +1,75 @@
 <template>
-  <nav class="navbar navbar-expand-lg shadow-sm custom-navbar fixed-top">
-    <div class="container">
-      <!-- Logo với icon -->
-      <router-link class="navbar-brand d-flex align-items-center fw-bold text-white" to="/reader">
-        <img :src="Logo" alt="Logo" height="70" />
-        <span class="ms-2 logo-text">Library LIBBRA</span>
-      </router-link>
+  <div class="reader-header">
+    <nav class="navbar navbar-expand-lg shadow-sm custom-navbar fixed-top">
+      <div class="container">
+        <!-- Logo với icon -->
+        <router-link class="navbar-brand d-flex align-items-center fw-bold text-white" to="/reader">
+          <img :src="Logo" alt="Logo" height="70" />
+          <span class="ms-2 logo-text">Library LIBBRA</span>
+        </router-link>
 
-      <!-- Button collapse cho mobile -->
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navReader"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
+        <!-- Button collapse cho mobile -->
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navReader"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
 
-      <!-- Nội dung navbar -->
-      <div class="collapse navbar-collapse" id="navReader">
-        <!-- Thanh tìm kiếm -->
-        <form class="d-flex mx-auto my-2 my-lg-0 search-form" @submit.prevent="submitSearch">
-          <div class="input-group search-container">
-            <input
-              type="text"
-              class="form-control search-input"
-              placeholder="Tìm kiếm theo tiêu đề hoặc tác giả..."
-              v-model="q"
-            />
-            <button type="submit" class="btn search-btn">
-              <i class="fas fa-search"></i>
-            </button>
-          </div>
-        </form>
+        <!-- Nội dung navbar -->
+        <div class="collapse navbar-collapse" id="navReader">
+          <!-- Thanh tìm kiếm -->
+          <form class="d-flex mx-auto my-2 my-lg-0 search-form" @submit.prevent="submitSearch">
+            <div class="input-group search-container">
+              <input
+                type="text"
+                class="form-control search-input"
+                placeholder="Tìm kiếm theo tiêu đề hoặc tác giả..."
+                v-model="q"
+                @input="emitQ"
+              />
+              <button type="submit" class="btn search-btn">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+          </form>
 
-        <!-- Menu với icon -->
-        <ul class="navbar-nav ms-auto align-items-center">
-          <li class="nav-item">
-            <router-link class="nav-link d-flex align-items-center menu-link" to="/reader">
-              <i class="fas fa-home me-1"></i> Home
-            </router-link>
-          </li>
-          <li class="nav-item">
-            <router-link class="nav-link d-flex align-items-center menu-link" to="/reader/history">
-              <i class="fas fa-history me-1"></i> Borrow History
-            </router-link>
-          </li>
-          <li class="nav-item">
-            <router-link class="nav-link d-flex align-items-center menu-link" to="/reader/profile">
-              <i class="fas fa-user me-1"></i> Profile
-            </router-link>
-          </li>
+          <!-- Menu với icon -->
+          <ul class="navbar-nav ms-auto align-items-center">
+            <li class="nav-item">
+              <router-link class="nav-link d-flex align-items-center menu-link" to="/reader">
+                <i class="fas fa-home me-1"></i> Home
+              </router-link>
+            </li>
+            <li class="nav-item">
+              <router-link class="nav-link d-flex align-items-center menu-link" to="/reader/history">
+                <i class="fas fa-history me-1"></i> Borrow History
+              </router-link>
+            </li>
+            <li class="nav-item">
+              <router-link class="nav-link d-flex align-items-center menu-link" to="/reader/profile">
+                <i class="fas fa-user me-1"></i> Profile
+              </router-link>
+            </li>
 
-          <li class="nav-item ms-2" v-if="!isLoggedIn">
-            <router-link class="btn btn-outline-light btn-sm d-flex align-items-center menu-btn" to="/reader/login">
-              <i class="fas fa-sign-in-alt me-1"></i> Login
-            </router-link>
-          </li>
+            <li class="nav-item ms-2" v-if="!isLoggedIn">
+              <router-link class="btn btn-outline-light btn-sm d-flex align-items-center menu-btn" to="/reader/login">
+                <i class="fas fa-sign-in-alt me-1"></i> Login
+              </router-link>
+            </li>
 
-          <li class="nav-item ms-2" v-else>
-            <button class="btn btn-outline-light btn-sm d-flex align-items-center menu-btn" @click="handleLogout">
-              <i class="fas fa-sign-out-alt me-1"></i> Logout
-            </button>
-          </li>
-        </ul>
+            <li class="nav-item ms-2" v-else>
+              <button class="btn btn-outline-light btn-sm d-flex align-items-center menu-btn" @click="handleLogout">
+                <i class="fas fa-sign-out-alt me-1"></i> Logout
+              </button>
+            </li>
+          </ul>
+        </div>
       </div>
-    </div>
-  </nav>
+    </nav>
+  </div>
 </template>
 
 <script>
@@ -168,5 +171,20 @@ export default {
 }
 .menu-btn {
   font-size: 1rem;
+}
+
+/* keep existing styles and add these at the bottom */
+.reader-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2000; /* higher than any page content/backdrop */
+  background: #fff; /* ensure header stays solid above content */
+}
+
+/* make sure header can receive clicks */
+.reader-header, .reader-header * {
+  pointer-events: auto;
 }
 </style>

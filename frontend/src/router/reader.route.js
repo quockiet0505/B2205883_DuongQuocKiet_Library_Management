@@ -13,7 +13,7 @@ export const readerRoutes = [
     component: Home,
   },
   {
-    path: '/reader/book/:id',
+    path: '/reader/book/:id/:slug?',
     name: 'ReaderBookDetail',
     component: BookDetail,
     props: true,

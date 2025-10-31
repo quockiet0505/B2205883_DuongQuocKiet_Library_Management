@@ -1,39 +1,65 @@
-
 <template>
-  <div>
-    <AppHeader />
+  <ReaderLayout>
     <div class="container mt-4">
-      <ProfileForm v-if="readerInfo" :reader="readerInfo" @save="onSave" />
+      <div v-if="error" class="alert alert-danger">{{ error }}</div>
+      <ProfileForm
+        v-else-if="readerInfo"
+        :reader="readerInfo"
+        @save="onSubmit"
+        @update="onSubmit"
+      />
       <div v-else class="text-center py-5">Loading...</div>
     </div>
-    <AppFooter />
-  </div>
+  </ReaderLayout>
 </template>
 
 <script>
-import AppHeader from "@/components/reader/AppHeader.vue";
-import AppFooter from "@/components/reader/AppFooter.vue";
+import ReaderLayout from "@/components/reader/ReaderLayout.vue";
 import ProfileForm from "@/components/reader/ProfileForm.vue";
-import { mapGetters, mapActions } from "vuex";
+import readerService from "@/services/reader.service";
+import authService from "@/services/auth.service";
 
 export default {
   name: "ReaderProfile",
-  components: { AppHeader, AppFooter, ProfileForm },
-  computed: {
-    ...mapGetters("reader", ["isLoggedIn", "readerInfo"]),
+  components: { ReaderLayout, ProfileForm },
+  data() {
+    return {
+      readerInfo: null,
+      readerId: null,
+      error: null,
+    };
   },
   async created() {
-    if (!this.isLoggedIn) {
-      this.$router.push("/reader/login");
+    const token = authService.getReaderToken();
+    const id = authService.getReaderId();
+    
+    console.log("[Profile] token:", token, "| readerId:", id);
+
+    if (!token || !id) {
+      console.warn("[Profile] Missing token or readerId");
+      this.error = "Not logged in or missing reader ID";
       return;
     }
-    await this.fetchProfile();
+    this.readerId = id;
+    try {
+      this.readerInfo = await readerService.getReaderById(id);
+      console.log("[Profile] Loaded readerInfo:", this.readerInfo);
+    } catch (e) {
+      console.error("[Profile] Error loading reader:", e);
+      this.error = e.response?.data?.message || e.message || "Failed to load profile";
+    }
   },
   methods: {
-    ...mapActions("reader", ["fetchProfile", "updateProfile"]),
-    async onSave(payload) {
-      await this.updateProfile(payload);
-      alert("Profile updated");
+    async onSubmit(payload) {
+      try {
+        const updated = await readerService.updateReader(this.readerId, payload);
+        const next = updated?.reader || updated;
+        this.readerInfo = { ...this.readerInfo, ...next };
+        alert("Profile updated");
+      } catch (e) {
+        console.error("[Profile] Update error:", e);
+        alert("Failed to update profile");
+      }
     },
   },
 };

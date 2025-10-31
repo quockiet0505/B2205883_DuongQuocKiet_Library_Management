@@ -1,23 +1,20 @@
 
 <template>
-  <div>
-    <AppHeader />
+    <ReaderLayout>
     <div class="container mt-4">
       <BorrowHistoryList :borrows="borrowHistory" />
     </div>
-    <AppFooter />
-  </div>
+  </ReaderLayout>
 </template>
 
 <script>
-import AppHeader from "@/components/reader/AppHeader.vue";
-import AppFooter from "@/components/reader/AppFooter.vue";
+import ReaderLayout from "@/components/reader/ReaderLayout.vue";
 import BorrowHistoryList from "@/components/reader/BorrowHistoryList.vue";
 import { mapGetters, mapActions } from "vuex";
 
 export default {
   name: "ReaderBorrowHistory",
-  components: { AppHeader, AppFooter, BorrowHistoryList },
+  components: { ReaderLayout, BorrowHistoryList },
   computed: {
     ...mapGetters("reader", ["isLoggedIn", "borrowHistory"]),
   },

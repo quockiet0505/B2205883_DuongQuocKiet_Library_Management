@@ -21,10 +21,12 @@ class ReaderController {
 
   static async getReaderById(req, res) {
     try {
+      console.log("[Controller] getReaderById called with id:", req.params.id); // ← Thêm log
       const reader = await ReaderService.getReaderById(req.params.id);
       if (!reader) return res.status(404).json({ message: "Reader not found" });
       res.status(200).json(reader);
     } catch (error) {
+      console.error("[Controller] Error:", error); // ← Thêm log
       res.status(500).json({ message: error.message });
     }
   }

@@ -16,8 +16,8 @@ class AuthController {
 
   static async loginStaff(req, res) {
     try {
-      const token = await StaffAuthService.login(req.body);
-      res.status(200).json({ message: "Staff login successful", token });
+      const data = await StaffAuthService.login(req.body);
+      res.status(200).json({ message: "Staff login successful", ...data });
     } catch (error) {
       res.status(401).json({ message: error.message });
     }
@@ -37,8 +37,8 @@ class AuthController {
 
   static async loginReader(req, res) {
     try {
-      const token = await ReaderAuthService.login(req.body);
-      res.status(200).json({ message: "Reader login successful", token });
+      const data = await ReaderAuthService.login(req.body);
+      res.status(200).json({ message: "Reader login successful", ...data });
     } catch (error) {
       res.status(401).json({ message: error.message });
     }
