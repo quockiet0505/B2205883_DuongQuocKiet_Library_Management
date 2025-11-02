@@ -1,5 +1,21 @@
 import api from "./api";
 
+function decodeJwt(token) {
+  if (!token || token.split(".").length !== 3) return null;
+  try {
+    const b64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const json = decodeURIComponent(
+      atob(b64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
+}
+
 export default {
   // Admin
   async loginAdmin(credentials) {
@@ -37,27 +53,29 @@ export default {
     if (token) localStorage.setItem("readerToken", token);
 
     const reader = res.data?.reader || res.data?.data || {};
-    
-    // Log đầy đủ để xem backend trả về gì
-    // console.log("[Auth] Full response:", res.data);
-    // console.log("[Auth] reader object:", reader);
-    // console.log("[Auth] reader.readerId:", reader.readerId);
-    // console.log("[Auth] reader._id:", reader._id);
+    const decoded = decodeJwt(token);
 
-    const readerId = reader.readerId || reader._id || res.data?.readerId || res.data?._id;
+    const readerId = reader._id || res.data?._id || decoded?.id || decoded?.sub || ""; // ✅ luôn lấy _id
+
     if (readerId) localStorage.setItem("readerId", readerId);
-
-    console.log("[Auth] Final saved readerId:", readerId);
-    console.log("[Auth] Type of readerId:", typeof readerId);
-
     return res.data;
   },
 
   async registerReader(data) {
     const res = await api.post("/auth/reader/register", data);
-    
+
     localStorage.removeItem("readerToken");
     localStorage.removeItem("readerId");
+
+    const token = res.data?.token;
+    if (token) localStorage.setItem("readerToken", token);
+
+    const reader = res.data?.reader || res.data?.data || {};
+    const decoded = decodeJwt(token);
+
+    const readerId = reader._id || res.data?._id || decoded?.id || ""; // ✅ luôn lấy _id
+
+    if (readerId) localStorage.setItem("readerId", readerId);
     return res.data;
   },
 

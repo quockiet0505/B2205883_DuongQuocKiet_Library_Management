@@ -1,10 +1,10 @@
 <template>
  
-    <ReaderLayout />
+    <ReaderLayout >
     <div class="container mt-4">
       <RegisterForm :error="error" @register="onRegister" />
     </div>
-    <ReaderLayout />
+  </ReaderLayout >
 
 </template>
 

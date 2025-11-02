@@ -5,7 +5,7 @@ const state = {
   token: localStorage.getItem("readerToken") || "",
   books: [],
   history: [],
-  error: null, // Lưu lỗi backend
+  error: null,
 };
 
 const getters = {
@@ -24,7 +24,7 @@ const actions = {
       commit("setToken", res.data.token);
       commit("setError", null);
       localStorage.setItem("readerToken", res.data.token);
-      localStorage.setItem("readerId", res.data.reader.readerId); // lưu ID reader
+      localStorage.setItem("readerId", res.data.reader._id); // ✅ luôn lưu _id
       return res.data;
     } catch (error) {
       const message = error.response?.data?.message || "Register failed";
@@ -40,7 +40,7 @@ const actions = {
       commit("setToken", res.data.token);
       commit("setError", null);
       localStorage.setItem("readerToken", res.data.token);
-      localStorage.setItem("readerId", res.data.reader.readerId); // lưu ID reader
+      localStorage.setItem("readerId", res.data.reader._id); // ✅ luôn lưu _id
       return res.data;
     } catch (error) {
       const message = error.response?.data?.message || "Login failed";
@@ -65,9 +65,8 @@ const actions = {
     commit("setHistory", res.data);
   },
 
-  // Lấy profile theo readerId
   async fetchProfile({ commit }) {
-    const readerId = localStorage.getItem("readerId");
+    const readerId = localStorage.getItem("readerId"); // ✅ dùng _id
     if (!readerId) throw new Error("No reader ID found");
     try {
       const res = await axios.get(`/api/reader/${readerId}`);
@@ -78,9 +77,8 @@ const actions = {
     }
   },
 
-  //  Cập nhật profile
   async updateProfile({ commit }, data) {
-    const readerId = localStorage.getItem("readerId");
+    const readerId = localStorage.getItem("readerId"); // ✅ dùng _id
     if (!readerId) throw new Error("No reader ID found");
     try {
       const res = await axios.put(`/api/reader/${readerId}`, data);

@@ -15,13 +15,14 @@
              </tr>
            </thead>
            <tbody>
-             <tr v-for="b in borrows" :key="b._id">
-               <td>{{ b.bookId?.title || "—" }}</td>
-               <td>{{ format(b.borrowDate) }}</td>
-               <td>{{ format(b.returnDate) }}</td>
-               <td>{{ b.quantity }}</td>
-               <td><span :class="statusClass(b.status)">{{ b.status }}</span></td>
-             </tr>
+            <tr v-for="b in borrows" :key="b._id">
+              <td>{{ b.bookId?.title || "—" }}</td>
+              <td>{{ format(b.borrowDate) }}</td>
+              <td>{{ format(b.returnDate) }}</td>
+              <td>{{ b.quantity }}</td>
+              <td><span :class="statusClass(b.status)">{{ b.status }}</span></td>
+            </tr>
+
            </tbody>
          </table>
        </div>
