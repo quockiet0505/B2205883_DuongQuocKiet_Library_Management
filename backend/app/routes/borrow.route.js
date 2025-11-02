@@ -9,6 +9,9 @@ router.post('/', BorrowController.createBorrow);
 // Doc du lieu tat ca phieu muon
 router.get('/', BorrowController.getAllBorrows);
 
+//  Route cụ thể phải đặt TRƯỚC route động
+router.get('/reader/:readerId', BorrowController.getBorrowsByReaderId);
+
 // Doc du lieu phieu muon theo ID
 router.get('/:id', BorrowController.getBorrowById);
 

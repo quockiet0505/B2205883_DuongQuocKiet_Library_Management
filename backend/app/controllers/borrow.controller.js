@@ -37,6 +37,18 @@ class BorrowController {
         }
     }
 
+    static async getBorrowsByReaderId(req, res, next) {
+        try {
+            const borrows = await BorrowService.getBorrowsByReaderId(req.params.readerId);
+            res.status(200).json({
+                message: "Borrow history retrieved successfully",
+                data: borrows,
+            });
+        } catch (err) {
+            next(err);
+        }
+    }
+
     static async updateBorrow(req, res, next) {
         try {
             const borrow = await BorrowService.updateBorrow(req.params.id, req.body);

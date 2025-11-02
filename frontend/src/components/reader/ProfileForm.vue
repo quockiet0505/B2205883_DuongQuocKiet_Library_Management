@@ -9,7 +9,7 @@
         </div>
         <div class="col-md-6">
           <label class="form-label">Email</label>
-          <input type="email" class="form-control" :value="reader.email" disabled />
+          <input type="email" class="form-control" :value="reader.email" required />
         </div>
         <div class="col-md-6">
           <label class="form-label">Họ</label>
@@ -54,7 +54,7 @@ export default {
   props: {
     reader: { type: Object, required: true },
   },
-  emits: ["save", "update"],
+  emits: ["update"], // ✅ chỉ emit "update", parent nhận payload ngay
   data() {
     return {
       form: {
@@ -83,12 +83,13 @@ export default {
   },
   methods: {
     handleSubmit() {
-      this.$emit("save", { ...this.form });
+      // ✅ emit "update" với payload form ngay lần đầu
       this.$emit("update", { ...this.form });
     },
   },
 };
 </script>
+
 
 <style scoped>
 .profile-form {

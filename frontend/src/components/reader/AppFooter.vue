@@ -1,6 +1,6 @@
 
 <template>
-     <footer class="bg-dark text-white text-center py-3 mt-5">
+     <footer class="footer text-white text-center py-3 mt-5">
        <div class="container">
          <small>© 2025 MyLibrary — Library Management</small>
        </div>
@@ -11,3 +11,8 @@
    export default { name: "AppFooterReader" };
    </script>
    
+   <style scoped>
+    .footer {
+      background-color: #e74c3c;;
+    }
+  </style>

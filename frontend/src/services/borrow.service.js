@@ -25,4 +25,9 @@ export default{
             const res = await api.delete(`/borrow/${id}`);
             return res.data;
      },
+
+     async getBorrowsByReaderId(readerId){
+            const res = await api.get(`/borrow/reader/${readerId}`);
+            return res.data;
+     }
 }

@@ -1,4 +1,5 @@
 import axios from "axios";
+import borrowService from "@/services/borrow.service";
 
 const state = {
   reader: null,
@@ -24,7 +25,7 @@ const actions = {
       commit("setToken", res.data.token);
       commit("setError", null);
       localStorage.setItem("readerToken", res.data.token);
-      localStorage.setItem("readerId", res.data.reader._id); // ✅ luôn lưu _id
+      localStorage.setItem("readerId", res.data.reader._id);
       return res.data;
     } catch (error) {
       const message = error.response?.data?.message || "Register failed";
@@ -40,7 +41,7 @@ const actions = {
       commit("setToken", res.data.token);
       commit("setError", null);
       localStorage.setItem("readerToken", res.data.token);
-      localStorage.setItem("readerId", res.data.reader._id); // ✅ luôn lưu _id
+      localStorage.setItem("readerId", res.data.reader._id);
       return res.data;
     } catch (error) {
       const message = error.response?.data?.message || "Login failed";
@@ -61,12 +62,23 @@ const actions = {
   },
 
   async fetchBorrowHistory({ commit }) {
-    const res = await axios.get("/api/borrow/history");
-    commit("setHistory", res.data);
+    const readerId = localStorage.getItem("readerId");
+    if (!readerId) {
+      commit("setHistory", []);
+      return;
+    }
+    try {
+      const data = await borrowService.getBorrowsByReaderId(readerId);
+      commit("setHistory", data.data || data);
+      commit("setError", null);
+    } catch (error) {
+      commit("setError", error.response?.data?.message || "Failed to fetch history");
+      commit("setHistory", []);
+    }
   },
 
   async fetchProfile({ commit }) {
-    const readerId = localStorage.getItem("readerId"); // ✅ dùng _id
+    const readerId = localStorage.getItem("readerId");
     if (!readerId) throw new Error("No reader ID found");
     try {
       const res = await axios.get(`/api/reader/${readerId}`);
@@ -78,7 +90,7 @@ const actions = {
   },
 
   async updateProfile({ commit }, data) {
-    const readerId = localStorage.getItem("readerId"); // ✅ dùng _id
+    const readerId = localStorage.getItem("readerId");
     if (!readerId) throw new Error("No reader ID found");
     try {
       const res = await axios.put(`/api/reader/${readerId}`, data);
@@ -86,6 +98,18 @@ const actions = {
       return res.data;
     } catch (error) {
       commit("setError", error.response?.data?.message || "Update failed");
+      throw error;
+    }
+  },
+
+  async createBorrow({ commit }, data) {
+    try {
+      const result = await borrowService.createBorrow(data);
+      commit("setError", null);
+      return result;
+    } catch (error) {
+      const message = error.response?.data?.message || "Failed to create borrow request";
+      commit("setError", message);
       throw error;
     }
   },
