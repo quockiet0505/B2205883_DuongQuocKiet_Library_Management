@@ -6,9 +6,8 @@
     </div>
     <div v-else class="table-responsive">
       <table class="table table-hover align-middle">
-        <thead class="table-dark">
+        <thead class="table-light">
           <tr>
-            <th>Borrow ID</th>
             <th>Book</th>
             <th>Quantity</th>
             <th>Borrow Date</th>
@@ -19,25 +18,35 @@
         </thead>
         <tbody>
           <tr v-for="b in borrows" :key="b._id">
-            <td class="fw-bold">{{ b._id || '—' }}</td>
+            <!-- Cột Book: hiển thị title + author -->
             <td>
-              <!-- Debug: kiểm tra cấu trúc dữ liệu -->
               <div v-if="b.bookId && typeof b.bookId === 'object'">
-                <div class="fw-semibold">{{ b.bookId.title || "—" }}</div>
-                <small class="text-muted">{{ b.bookId.author || '' }}</small>
+                <div class="fw-bold">{{ b.bookId.title || "—" }}</div>
+                <small class="text-muted">{{ b.bookId.author || "" }}</small>
               </div>
-              <div v-else-if="b.bookId" class="text-warning">
-                Book ID: {{ b.bookId }} (not populated)
+              <div v-else class="text-warning">
+                Book ID: {{ b.bookId || "—" }} (not populated)
               </div>
-              <div v-else class="text-muted">No book info</div>
             </td>
-            <td class="text-center">{{ b.quantity }}</td>
+
+            <!-- Cột Quantity -->
+            <td class="text-center">{{ b.quantity || "—" }}</td>
+
+            <!-- Cột Borrow Date -->
             <td>{{ format(b.borrowDate) }}</td>
+
+            <!-- Cột Return Date + Overdue badge -->
             <td>
               {{ format(b.returnDate) }}
-              <span v-if="isOverdue(b)" class="badge bg-danger ms-1">Overdue</span>
+              <span v-if="isOverdue(b)" class="badge badge-overdue ms-1">Overdue</span>
             </td>
-            <td><span :class="statusClass(b.status)">{{ formatStatus(b.status) }}</span></td>
+
+            <!-- Cột Status -->
+            <td>
+              <span :class="statusClass(b.status)">{{ formatStatus(b.status) }}</span>
+            </td>
+
+            <!-- Cột Fine -->
             <td>
               <span v-if="b.fine && b.fine > 0" class="text-danger fw-bold">
                 {{ formatPrice(b.fine) }}
@@ -47,7 +56,7 @@
           </tr>
         </tbody>
       </table>
-      
+
       <div v-if="totalFine > 0" class="alert alert-warning mt-3">
         <strong>Total Fine:</strong> {{ formatPrice(totalFine) }}
       </div>
@@ -60,7 +69,6 @@ export default {
   name: "BorrowHistoryList",
   props: { borrows: { type: Array, default: () => [] } },
   mounted() {
-    // Debug: log dữ liệu để kiểm tra
     console.log("Borrow history data:", this.borrows);
   },
   computed: {
@@ -89,12 +97,12 @@ export default {
     },
     statusClass(s) {
       switch (s) {
-        case "processing": return "badge bg-warning text-dark";
-        case "accepted": return "badge bg-success";
-        case "refused": return "badge bg-danger";
-        case "returned": return "badge bg-secondary";
-        case "overdue": return "badge bg-danger";
-        default: return "badge bg-light text-dark";
+        case "processing": return "badge badge-processing";
+        case "accepted": return "badge badge-accepted";
+        case "refused": return "badge badge-refused";
+        case "returned": return "badge badge-returned";
+        case "overdue": return "badge badge-overdue";
+        default: return "badge badge-light";
       }
     },
     isOverdue(borrow) {
@@ -111,5 +119,32 @@ export default {
 <style scoped>
 .table {
   font-size: 0.95rem;
+}
+
+/* Badge màu nhẹ nhàng hợp nền be */
+.badge {
+  font-size: 0.85rem;
+}
+
+/* Status badges */
+.badge-processing {
+  background-color: #FDE68A !important; /* vàng nhạt */
+  color: #78350F !important;
+}
+.badge-accepted {
+  background-color: #A7F3D0 !important; /* xanh nhạt */
+  color: #065F46 !important;
+}
+.badge-refused {
+  background-color: #FCA5A5 !important; /* đỏ nhạt */
+  color: #991B1B !important;
+}
+.badge-returned {
+  background-color: #E5E5CB !important; /* be nhạt */
+  color: #4B5563 !important;
+}
+.badge-overdue {
+  background-color: #FCA5A5 !important; /* đỏ nhạt */
+  color: #991B1B !important;
 }
 </style>

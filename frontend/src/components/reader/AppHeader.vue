@@ -55,13 +55,13 @@
             </li>
 
             <li class="nav-item ms-2" v-if="!isLoggedIn">
-              <router-link class="btn btn-outline-light btn-sm d-flex align-items-center menu-btn" to="/reader/login">
+              <router-link class="btn  btn-sm d-flex align-items-center menu-btn" to="/reader/login">
                 <i class="fas fa-sign-in-alt me-1"></i> Login
               </router-link>
             </li>
 
             <li class="nav-item ms-2" v-else>
-              <button class="btn btn-outline-light btn-sm d-flex align-items-center menu-btn" @click="handleLogout">
+              <button class="btn  btn-sm d-flex align-items-center menu-btn" @click="handleLogout">
                 <i class="fas fa-sign-out-alt me-1"></i> Logout
               </button>
             </li>
@@ -106,7 +106,7 @@ export default {
 <style scoped>
 /* Navbar background và height */
 .custom-navbar {
-  background-color: #e74c3c;
+  background-color: #E5E5CB;
   min-height: 70px;
 }
 
@@ -114,6 +114,7 @@ export default {
 .logo-text {
   font-size: 1.5rem;
   font-weight: bold;
+  color: #2F855A;
 }
 
 /* Thanh search */
@@ -163,14 +164,16 @@ export default {
 
 /* Menu */
 .nav-link {
-  color: #fff !important;
+  color: black !important; 
   font-size: 1.1rem;
 }
-.nav-link i {
-  font-size: 1.1rem;
+
+.nav-link:hover {
+  color: #232423 !important; 
 }
+
 .menu-btn {
-  font-size: 1rem;
+  font-size: 1.1rem;
 }
 
 /* keep existing styles and add these at the bottom */

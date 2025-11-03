@@ -1,6 +1,7 @@
 import axios from "axios";
 
 const state = {
+  admin: null,
   token: localStorage.getItem("adminToken") || "",
   books: [],
   readers: [],
@@ -12,6 +13,7 @@ const state = {
 
 const getters = {
   isAuthenticated: (state) => !!state.token,
+  adminInfo: (state) => state.admin,
   allBooks: (state) => state.books,
   allReaders: (state) => state.readers,
   allBorrows: (state) => state.borrows,
@@ -23,14 +25,23 @@ const getters = {
 const actions = {
   // ----------------- AUTH -----------------
   async login({ commit }, credentials) {
-    const res = await axios.post("/api/admin/login", credentials);
-    commit("setToken", res.data.token);
-    localStorage.setItem("adminToken", res.data.token);
+    try {
+      const res = await axios.post("/api/auth/staff/login", credentials);
+      commit("setAdmin", res.data.staff);
+      commit("setToken", res.data.token);
+      localStorage.setItem("adminToken", res.data.token);
+      localStorage.setItem("adminId", res.data.staff.id);
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Login failed");
+    }
   },
 
   logout({ commit }) {
+    commit("clearAdmin");
     commit("clearToken");
     localStorage.removeItem("adminToken");
+    localStorage.removeItem("adminId");
   },
 
   // ----------------- BOOK -----------------
@@ -48,14 +59,8 @@ const actions = {
   // ----------------- BORROW -----------------
   async fetchBorrows({ commit }) {
     const res = await axios.get("/api/borrow");
-    commit("setBorrows", res.data);
+    commit("setBorrows", res.data.data || res.data);
   },
-
-  // ----------------- DASHBOARD -----------------
-  // async fetchStats({ commit }) {
-  //   const res = await axios.get("/api/admin/stat");
-  //   commit("setStats", res.data);
-  // },
 
   // ----------------- PUBLISHER -----------------
   async fetchPublishers({ commit }) {
@@ -85,7 +90,7 @@ const actions = {
   },
 
   async registerStaff({ dispatch }, data) {
-    await axios.post("/api/staff/register", data);
+    await axios.post("/api/auth/staff/register", data);
     dispatch("fetchStaffs");
   },
 
@@ -101,7 +106,9 @@ const actions = {
 };
 
 const mutations = {
+  setAdmin: (state, admin) => (state.admin = admin),
   setToken: (state, token) => (state.token = token),
+  clearAdmin: (state) => (state.admin = null),
   clearToken: (state) => (state.token = ""),
   setBooks: (state, books) => (state.books = books),
   setReaders: (state, readers) => (state.readers = readers),
