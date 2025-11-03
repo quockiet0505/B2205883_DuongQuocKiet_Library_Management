@@ -1,70 +1,78 @@
 <template>
-     <div class="container my-4">
-       <h3 class="fw-bold mb-3">Manage Books</h3>
-   
-       <div class="d-flex justify-content-between mb-3">
-         <input type="text" class="form-control w-50" placeholder="Search books..." v-model="searchText" />
-         <button class="btn btn-primary" @click="addBook">➕ Add Book</button>
-       </div>
-   
-       <table class="table table-striped table-hover">
-         <thead class="table-dark">
-           <tr>
-             <th>ID</th>
-             <th>Title</th>
-             <th>Publisher</th>
-             <th>Available</th>
-             <th>Actions</th>
-           </tr>
-         </thead>
-         <tbody>
-           <tr v-for="book in filteredBooks" :key="book.id">
-             <td>{{ book.id }}</td>
-             <td>{{ book.title }}</td>
-             <td>{{ book.publisher }}</td>
-             <td>{{ book.available }}</td>
-             <td>
-               <button class="btn btn-sm btn-warning me-2" @click="editBook(book)">Edit</button>
-               <button class="btn btn-sm btn-danger" @click="deleteBook(book.id)">Delete</button>
-             </td>
-           </tr>
-         </tbody>
-       </table>
-     </div>
-   </template>
-   
-   <script>
-   export default {
-     name: "AdminBookList",
-     data() {
-       return {
-         searchText: "",
-         books: [
-           { id: 1, title: "Learning Vue.js", publisher: "O'Reilly", available: 5 },
-           { id: 2, title: "JavaScript Patterns", publisher: "Apress", available: 3 },
-         ],
-       };
-     },
-     computed: {
-       filteredBooks() {
-         return this.books.filter(b =>
-           b.title.toLowerCase().includes(this.searchText.toLowerCase())
-         );
-       },
-     },
-     methods: {
-       addBook() {
-         alert("Navigate to Add Book form");
-       },
-       editBook(book) {
-         alert(`Edit book: ${book.title}`);
-       },
-       deleteBook(id) {
-         if (confirm("Delete this book?")) {
-           this.books = this.books.filter(b => b.id !== id);
-         }
-       },
-     },
-   };
-   </script>
-   
+  <div class="container my-4">
+    <h3 class="fw-bold mb-3">Book Management</h3>
+    
+    <SearchBar 
+      placeholder="Search by title or author..." 
+      @search="handleSearch"
+    />
+
+    <div v-if="!filteredBooks || filteredBooks.length === 0" class="alert alert-info">
+      No books found.
+    </div>
+
+    <table v-else class="table table-striped table-bordered">
+      <thead class="table-dark">
+        <tr>
+          <th>Book ID</th>
+          <th>Title</th>
+          <th>Author</th>
+          <th>Publisher</th>
+          <th>Year</th>
+          <th>Quantity</th>
+          <th>Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="book in filteredBooks" :key="book._id">
+          <td>{{ book.bookId }}</td>
+          <td>{{ book.title }}</td>
+          <td>{{ book.author }}</td>
+          <td>{{ book.publisherId?.name || "—" }}</td>
+          <td>{{ book.publishYear }}</td>
+          <td class="text-center">{{ book.quantity }}</td>
+          <td>{{ formatPrice(book.price) }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</template>
+
+<script>
+import SearchBar from "./SearchBar.vue";
+
+export default {
+  name: "BookList",
+  components: { SearchBar },
+  props: {
+    books: {
+      type: Array,
+      default: () => []
+    }
+  },
+  data() {
+    return {
+      searchQuery: ""
+    };
+  },
+  computed: {
+    filteredBooks() {
+      if (!this.searchQuery) return this.books;
+      
+      const query = this.searchQuery.toLowerCase();
+      return this.books.filter(book => 
+        book.title.toLowerCase().includes(query) ||
+        book.author.toLowerCase().includes(query)
+      );
+    }
+  },
+  methods: {
+    handleSearch(query) {
+      this.searchQuery = query;
+    },
+    formatPrice(price) {
+      return price ? `$${price.toFixed(2)}` : "—";
+    }
+  }
+};
+</script>

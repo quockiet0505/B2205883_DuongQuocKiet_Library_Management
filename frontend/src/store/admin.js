@@ -46,26 +46,55 @@ const actions = {
 
   // ----------------- BOOK -----------------
   async fetchBooks({ commit }) {
-    const res = await axios.get("/api/book");
-    commit("setBooks", res.data);
+    try {
+      const res = await axios.get("/api/book");
+      // Backend có thể trả về res.data hoặc res.data.data
+      const books = res.data.data || res.data;
+      console.log("Books fetched:", books);
+      commit("setBooks", books);
+    } catch (error) {
+      console.error("Failed to fetch books:", error);
+      commit("setBooks", []);
+    }
   },
 
   // ----------------- READER -----------------
   async fetchReaders({ commit }) {
-    const res = await axios.get("/api/reader");
-    commit("setReaders", res.data);
+    try {
+      const res = await axios.get("/api/reader");
+      const readers = res.data.data || res.data;
+      console.log("Readers fetched:", readers);
+      commit("setReaders", readers);
+    } catch (error) {
+      console.error("Failed to fetch readers:", error);
+      commit("setReaders", []);
+    }
   },
 
   // ----------------- BORROW -----------------
   async fetchBorrows({ commit }) {
-    const res = await axios.get("/api/borrow");
-    commit("setBorrows", res.data.data || res.data);
+    try {
+      const res = await axios.get("/api/borrow");
+      const borrows = res.data.data || res.data;
+      console.log("Borrows fetched:", borrows);
+      commit("setBorrows", borrows);
+    } catch (error) {
+      console.error("Failed to fetch borrows:", error);
+      commit("setBorrows", []);
+    }
   },
 
   // ----------------- PUBLISHER -----------------
   async fetchPublishers({ commit }) {
-    const res = await axios.get("/api/publisher");
-    commit("setPublishers", res.data);
+    try {
+      const res = await axios.get("/api/publisher");
+      const publishers = res.data.data || res.data;
+      console.log("Publishers fetched:", publishers);
+      commit("setPublishers", publishers);
+    } catch (error) {
+      console.error("Failed to fetch publishers:", error);
+      commit("setPublishers", []);
+    }
   },
 
   async addPublisher({ dispatch }, data) {
@@ -85,8 +114,15 @@ const actions = {
 
   // ----------------- STAFF -----------------
   async fetchStaffs({ commit }) {
-    const res = await axios.get("/api/staff");
-    commit("setStaffs", res.data);
+    try {
+      const res = await axios.get("/api/staff");
+      const staffs = res.data.data || res.data;
+      console.log("Staffs fetched:", staffs);
+      commit("setStaffs", staffs);
+    } catch (error) {
+      console.error("Failed to fetch staffs:", error);
+      commit("setStaffs", []);
+    }
   },
 
   async registerStaff({ dispatch }, data) {
@@ -102,6 +138,29 @@ const actions = {
   async deleteStaff({ dispatch }, id) {
     await axios.delete(`/api/staff/${id}`);
     dispatch("fetchStaffs");
+  },
+
+  async fetchStats({ commit }) {
+    try {
+      const [books, readers, borrows, publishers] = await Promise.all([
+        axios.get("/api/book"),
+        axios.get("/api/reader"),
+        axios.get("/api/borrow"),
+        axios.get("/api/publisher")
+      ]);
+      
+      const stats = {
+        books: (books.data.data || books.data).length,
+        readers: (readers.data.data || readers.data).length,
+        borrows: (borrows.data.data || borrows.data).length,
+        publishers: (publishers.data.data || publishers.data).length
+      };
+      
+      console.log("Stats:", stats);
+      commit("setStats", stats);
+    } catch (error) {
+      console.error("Failed to fetch stats:", error);
+    }
   },
 };
 

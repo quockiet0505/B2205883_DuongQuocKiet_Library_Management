@@ -1,50 +1,75 @@
 <template>
-     <div class="container mt-4">
-       <h3>Staff Management</h3>
-   
-       <button class="btn btn-success mb-3" @click="$router.push('/admin/staff/register')">
-         Add Staff
-       </button>
-   
-       <table class="table table-bordered">
-         <thead class="table-light">
-           <tr>
-             <th>#</th>
-             <th>Full Name</th>
-             <th>Email</th>
-             <th>Phone</th>
-             <th>Role</th>
-             <th>Actions</th>
-           </tr>
-         </thead>
-         <tbody>
-           <tr v-for="(staff, i) in staffs" :key="staff._id">
-             <td>{{ i + 1 }}</td>
-             <td>{{ staff.firstName }} {{ staff.lastName }}</td>
-             <td>{{ staff.email }}</td>
-             <td>{{ staff.phone }}</td>
-             <td>{{ staff.role }}</td>
-             <td>
-               <button class="btn btn-danger btn-sm" @click="deleteStaff(staff._id)">Delete</button>
-             </td>
-           </tr>
-         </tbody>
-       </table>
-     </div>
-   </template>
-   
-   <script>
-   import { mapActions, mapState } from "vuex";
-   export default {
-     computed: {
-       ...mapState("admin", ["staffs"]),
-     },
-     methods: {
-       ...mapActions("admin", ["fetchStaffs", "deleteStaff"]),
-     },
-     mounted() {
-       this.fetchStaffs();
-     },
-   };
-   </script>
-   
+  <div class="container my-4">
+    <h3 class="fw-bold mb-3">Staff Management</h3>
+    
+    <SearchBar 
+      placeholder="Search by name or email..." 
+      @search="handleSearch"
+    />
+
+    <div v-if="!filteredStaffs || filteredStaffs.length === 0" class="alert alert-info">
+      No staff found.
+    </div>
+
+    <table v-else class="table table-striped table-bordered">
+      <thead class="table-dark">
+        <tr>
+          <th>Staff ID</th>
+          <th>Full Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Position</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="staff in filteredStaffs" :key="staff._id">
+          <td>{{ staff.staffId }}</td>
+          <td>{{ staff.fullName }}</td>
+          <td>{{ staff.email }}</td>
+          <td>{{ staff.phone }}</td>
+          <td>
+            <span :class="staff.position === 'Manager' ? 'badge bg-primary' : 'badge bg-secondary'">
+              {{ staff.position }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</template>
+
+<script>
+import SearchBar from "./SearchBar.vue";
+
+export default {
+  name: "StaffList",
+  components: { SearchBar },
+  props: {
+    staffs: {
+      type: Array,
+      default: () => []
+    }
+  },
+  data() {
+    return {
+      searchQuery: ""
+    };
+  },
+  computed: {
+    filteredStaffs() {
+      if (!this.searchQuery) return this.staffs;
+      
+      const query = this.searchQuery.toLowerCase();
+      return this.staffs.filter(staff => 
+        staff.fullName.toLowerCase().includes(query) ||
+        staff.email.toLowerCase().includes(query)
+      );
+    }
+  },
+  methods: {
+    handleSearch(query) {
+      this.searchQuery = query;
+    }
+  }
+};
+</script>

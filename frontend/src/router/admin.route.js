@@ -4,6 +4,7 @@ import BookManagement from '@/views/admin/BookManagement.vue';
 import BorrowManagement from '@/views/admin/BorrowManagement.vue';
 import PublisherManagement from '@/views/admin/PublisherManagement.vue';
 import ReaderManagement from '@/views/admin/ReaderManagement.vue';
+import StaffManagement from '@/views/admin/StaffManagement.vue';
 import Login from '@/views/admin/Login.vue';
 import Register from '@/views/admin/Register.vue';
 
@@ -48,6 +49,12 @@ export const adminRoutes = [
     path: '/admin/reader',
     name: 'AdminReaderManagement',
     component: ReaderManagement,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/admin/staff',
+    name: 'AdminStaffManagement',
+    component: StaffManagement,
     meta: { requiresAuth: true },
   },
 ];

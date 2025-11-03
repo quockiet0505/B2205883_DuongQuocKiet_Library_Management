@@ -1,17 +1,16 @@
 <template>
      <div>
-       <AppHeader />
+       <div >
        <StaffRegister />
-       <AppFooter />
+       </div>AdminLayout >
      </div>
    </template>
    
    <script>
-   import AppHeader from "../../components/admin/AppHeader.vue";
-   import AppFooter from "../../components/admin/AppFooter.vue";
+   import AdminLayout from "../../components/admin/AdminLayout.vue";
    import StaffRegister from "../../components/admin/StaffRegister.vue";
    export default {
-     components: { AppHeader, AppFooter, StaffRegister },
+     components: {AdminLayout, StaffRegister },
    };
    </script>
    

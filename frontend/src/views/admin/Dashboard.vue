@@ -1,21 +1,20 @@
 <template>
      <div>
-       <AppHeader />
+       <AdminLayout >
        <div class="container mt-4">
          <Dashboard :stats="stats" />
        </div>
-       <AppFooter />
+       </AdminLayout >
      </div>
    </template>
    
    <script>
-   import AppHeader from "@/components/admin/AppHeader.vue";
-   import AppFooter from "@/components/admin/AppFooter.vue";
+   import AdminLayout from "@/components/admin/AdminLayout.vue";
    import Dashboard from "@/components/admin/Dashboard.vue";
    import { mapGetters, mapActions } from "vuex";
    
    export default {
-     components: { AppHeader, AppFooter, Dashboard },
+     components: { AdminLayout, Dashboard },
      computed: mapGetters("admin", ["dashboardStats"]),
      data() {
        return { stats: {} };

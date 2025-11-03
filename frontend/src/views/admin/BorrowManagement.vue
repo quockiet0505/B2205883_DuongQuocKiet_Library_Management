@@ -1,21 +1,20 @@
 <template>
      <div>
-       <AppHeader />
+       <AdminLayout >
        <div class="container mt-4">
          <BorrowList :borrows="borrows" />
        </div>
-       <AppFooter />
+       </AdminLayout >
      </div>
    </template>
    
    <script>
-   import AppHeader from "@/components/admin/AppHeader.vue";
-   import AppFooter from "@/components/admin/AppFooter.vue";
+   import AdminLayout from "@/components/admin/AdminLayout.vue";
    import BorrowList from "@/components/admin/BorrowList.vue";
    import { mapGetters } from "vuex";
    
    export default {
-     components: { AppHeader, AppFooter, BorrowList },
+     components: { AdminLayout, BorrowList },
      computed: mapGetters("admin", ["allBorrows"]),
      data() {
        return { borrows: [] };

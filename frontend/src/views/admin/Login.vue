@@ -1,4 +1,5 @@
 <template>
+  <AdminLayout>
      <div class="container mt-5">
        <div class="col-md-5 mx-auto card p-4 shadow-sm">
          <h3 class="text-center fw-bold mb-3">Admin Login</h3>
@@ -15,15 +16,17 @@
          </form>
        </div>
      </div>
+     </AdminLayout>
    </template>
    
    <script>
    import { mapActions } from "vuex";
-   
+   import AdminLayout from "@/components/admin/AdminLayout.vue";
    export default {
      data() {
        return { email: "", password: "" };
      },
+     components: { AdminLayout },
      methods: {
        ...mapActions("admin", ["login"]),
        async handleLogin() {

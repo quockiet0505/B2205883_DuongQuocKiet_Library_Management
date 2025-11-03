@@ -1,10 +1,24 @@
+
 <template>
-     <footer class="bg-dark text-white text-center py-3 mt-5">
-       <small>© {{ new Date().getFullYear() }} Library Admin System — All rights reserved</small>
-     </footer>
-   </template>
-   
-   <script>
-   export default { name: "AdminFooter" };
-   </script>
-   
+  <footer class="footer text-white text-center py-3 mt-5">
+    <div class="container">
+      <small>© 2025 Library Admin System— Library Management</small>
+    </div>
+  </footer>
+</template>
+
+<script>
+export default { name: "AppFooterReader" };
+</script>
+
+<style scoped>
+.footer {
+ background-color: #E5E5CB;
+}
+
+.container{
+ color: black;
+ font-size: 1.1rem;
+ font-weight: bold;
+}
+</style>
