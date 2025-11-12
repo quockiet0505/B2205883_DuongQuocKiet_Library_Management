@@ -19,7 +19,9 @@ class AuthController {
       const data = await StaffAuthService.login(req.body);
       res.status(200).json({ message: "Staff login successful", ...data });
     } catch (error) {
-      res.status(401).json({ message: error.message });
+      console.error(" Login error:", error.message);
+      const status = error.statusCode || 500; 
+      res.status(status).json({ message: error.message });
     }
   }
 

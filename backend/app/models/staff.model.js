@@ -25,7 +25,7 @@ const staffSchema = new mongoose.Schema(
     },
     position: {
       type: String,
-      enum: ["Manager", "Staff"],
+      enum: ["Admin", "Staff"],
       default: "Staff",
     },
     address: {

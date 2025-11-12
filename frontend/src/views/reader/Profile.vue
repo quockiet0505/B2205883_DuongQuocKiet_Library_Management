@@ -51,14 +51,18 @@ export default {
   },
   methods: {
     async onSubmit(payload) {
-      try {
-        const updated = await readerService.updateReader(this.readerId, payload);
-        this.readerInfo = { ...this.readerInfo, ...updated };
-        alert("Cập nhật hồ sơ thành công!");
-      } catch (e) {
-        alert(e.response?.data?.message || "Cập nhật hồ sơ thất bại!");
+        try {
+          const res = await readerService.updateReader(this.readerId, payload);
+          //Lấy ra reader từ response
+          const updated = res.reader || res.data || res;
+          this.readerInfo = { ...this.readerInfo, ...updated };
+          alert("Cập nhật hồ sơ thành công!");
+        } catch (e) {
+          console.error("Update error:", e);
+          alert(e.response?.data?.message || "Cập nhật hồ sơ thất bại!");
+        }
       }
-    },
+
   },
 };
 </script>

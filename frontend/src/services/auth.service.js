@@ -55,7 +55,7 @@ export default {
     const reader = res.data?.reader || res.data?.data || {};
     const decoded = decodeJwt(token);
 
-    const readerId = reader._id || res.data?._id || decoded?.id || decoded?.sub || ""; // ✅ luôn lấy _id
+    const readerId = reader._id || res.data?._id || decoded?.id || decoded?.sub || ""; 
 
     if (readerId) localStorage.setItem("readerId", readerId);
     return res.data;
@@ -73,7 +73,7 @@ export default {
     const reader = res.data?.reader || res.data?.data || {};
     const decoded = decodeJwt(token);
 
-    const readerId = reader._id || res.data?._id || decoded?.id || ""; // ✅ luôn lấy _id
+    const readerId = reader._id || res.data?._id || decoded?.id || ""; 
 
     if (readerId) localStorage.setItem("readerId", readerId);
     return res.data;

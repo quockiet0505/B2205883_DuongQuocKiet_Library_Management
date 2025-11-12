@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "@/services/api"; // ✅ Dùng api instance thay cho axios
 
 const state = {
   admin: null,
@@ -26,7 +26,7 @@ const actions = {
   // ----------------- AUTH -----------------
   async login({ commit }, credentials) {
     try {
-      const res = await axios.post("/api/auth/staff/login", credentials);
+      const res = await api.post("/auth/staff/login", credentials); //  Dùng api
       commit("setAdmin", res.data.staff);
       commit("setToken", res.data.token);
       localStorage.setItem("adminToken", res.data.token);
@@ -36,6 +36,22 @@ const actions = {
       throw new Error(error.response?.data?.message || "Login failed");
     }
   },
+
+  // ----------------- CURRENT ADMIN -----------------
+async fetchCurrentAdmin({ commit }) {
+  try {
+    const adminId = localStorage.getItem("adminId");
+    if (!adminId) throw new Error("Admin ID not found in localStorage");
+
+    const res = await api.get(`/staff/${adminId}`);
+    commit("setAdmin", res.data || res);
+    return res.data || res;
+  } catch (error) {
+    console.error("Failed to fetch current admin:", error);
+    throw error;
+  }
+},
+
 
   logout({ commit }) {
     commit("clearAdmin");
@@ -47,10 +63,8 @@ const actions = {
   // ----------------- BOOK -----------------
   async fetchBooks({ commit }) {
     try {
-      const res = await axios.get("/api/book");
-      // Backend có thể trả về res.data hoặc res.data.data
+      const res = await api.get("/book");
       const books = res.data.data || res.data;
-      console.log("Books fetched:", books);
       commit("setBooks", books);
     } catch (error) {
       console.error("Failed to fetch books:", error);
@@ -61,9 +75,8 @@ const actions = {
   // ----------------- READER -----------------
   async fetchReaders({ commit }) {
     try {
-      const res = await axios.get("/api/reader");
+      const res = await api.get("/reader");
       const readers = res.data.data || res.data;
-      console.log("Readers fetched:", readers);
       commit("setReaders", readers);
     } catch (error) {
       console.error("Failed to fetch readers:", error);
@@ -74,9 +87,8 @@ const actions = {
   // ----------------- BORROW -----------------
   async fetchBorrows({ commit }) {
     try {
-      const res = await axios.get("/api/borrow");
+      const res = await api.get("/borrow");
       const borrows = res.data.data || res.data;
-      console.log("Borrows fetched:", borrows);
       commit("setBorrows", borrows);
     } catch (error) {
       console.error("Failed to fetch borrows:", error);
@@ -87,9 +99,8 @@ const actions = {
   // ----------------- PUBLISHER -----------------
   async fetchPublishers({ commit }) {
     try {
-      const res = await axios.get("/api/publisher");
+      const res = await api.get("/publisher");
       const publishers = res.data.data || res.data;
-      console.log("Publishers fetched:", publishers);
       commit("setPublishers", publishers);
     } catch (error) {
       console.error("Failed to fetch publishers:", error);
@@ -98,26 +109,25 @@ const actions = {
   },
 
   async addPublisher({ dispatch }, data) {
-    await axios.post("/api/publisher", data);
+    await api.post("/publisher", data);
     dispatch("fetchPublishers");
   },
 
   async updatePublisher({ dispatch }, { id, data }) {
-    await axios.put(`/api/publisher/${id}`, data);
+    await api.put(`/publisher/${id}`, data);
     dispatch("fetchPublishers");
   },
 
   async deletePublisher({ dispatch }, id) {
-    await axios.delete(`/api/publisher/${id}`);
+    await api.delete(`/publisher/${id}`);
     dispatch("fetchPublishers");
   },
 
   // ----------------- STAFF -----------------
   async fetchStaffs({ commit }) {
     try {
-      const res = await axios.get("/api/staff");
+      const res = await api.get("/staff");
       const staffs = res.data.data || res.data;
-      console.log("Staffs fetched:", staffs);
       commit("setStaffs", staffs);
     } catch (error) {
       console.error("Failed to fetch staffs:", error);
@@ -126,37 +136,39 @@ const actions = {
   },
 
   async registerStaff({ dispatch }, data) {
-    await axios.post("/api/auth/staff/register", data);
+    await api.post("/auth/staff/register", data);
     dispatch("fetchStaffs");
   },
 
   async updateStaff({ dispatch }, { id, data }) {
-    await axios.put(`/api/staff/${id}`, data);
+    await api.put(`/staff/${id}`, data);
     dispatch("fetchStaffs");
   },
 
   async deleteStaff({ dispatch }, id) {
-    await axios.delete(`/api/staff/${id}`);
+    await api.delete(`/staff/${id}`);
     dispatch("fetchStaffs");
   },
 
+  // ----------------- DASHBOARD STATS -----------------
   async fetchStats({ commit }) {
     try {
-      const [books, readers, borrows, publishers] = await Promise.all([
-        axios.get("/api/book"),
-        axios.get("/api/reader"),
-        axios.get("/api/borrow"),
-        axios.get("/api/publisher")
+      const [books, readers, borrows, publishers, staffs] = await Promise.all([
+        api.get("/book"),
+        api.get("/reader"),
+        api.get("/borrow"),
+        api.get("/publisher"),
+        api.get("/staff"),
       ]);
-      
+
       const stats = {
         books: (books.data.data || books.data).length,
         readers: (readers.data.data || readers.data).length,
         borrows: (borrows.data.data || borrows.data).length,
-        publishers: (publishers.data.data || publishers.data).length
+        publishers: (publishers.data.data || publishers.data).length,
+        staffs: (staffs.data.data || staffs.data).length,
       };
-      
-      console.log("Stats:", stats);
+
       commit("setStats", stats);
     } catch (error) {
       console.error("Failed to fetch stats:", error);
@@ -172,15 +184,15 @@ const mutations = {
   setBooks: (state, books) => (state.books = books),
   setReaders: (state, readers) => (state.readers = readers),
   setBorrows: (state, borrows) => (state.borrows = borrows),
-  setStats: (state, stats) => (state.stats = stats),
   setPublishers: (state, publishers) => (state.publishers = publishers),
   setStaffs: (state, staffs) => (state.staffs = staffs),
+  setStats: (state, stats) => (state.stats = stats),
 };
 
-export default { 
-  namespaced: true, 
-  state, 
-  getters, 
-  actions, 
-  mutations 
+export default {
+  namespaced: true,
+  state,
+  getters,
+  actions,
+  mutations,
 };

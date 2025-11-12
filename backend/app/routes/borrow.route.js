@@ -21,4 +21,8 @@ router.put('/:id', BorrowController.updateBorrow);
 // Xoa phieu muon
 router.delete('/:id', BorrowController.deleteBorrow);
 
+// Huỷ đặt phiếu mượn
+router.patch('/:id/cancel', BorrowController.cancelBorrow);
+
+
 module.exports = router;

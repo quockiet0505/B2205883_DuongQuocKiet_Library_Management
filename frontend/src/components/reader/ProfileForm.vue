@@ -3,14 +3,11 @@
     <h3 class="mb-4">Thông tin cá nhân</h3>
     <form @submit.prevent="handleSubmit">
       <div class="row g-3">
-        <div class="col-md-6">
+        <!-- <div class="col-md-6">
           <label class="form-label">Mã độc giả</label>
           <input type="text" class="form-control" :value="reader.readerId" disabled />
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Email</label>
-          <input type="email" class="form-control" :value="reader.email" required />
-        </div>
+        </div> -->
+        
         <div class="col-md-6">
           <label class="form-label">Họ</label>
           <input v-model="form.lastName" type="text" class="form-control" required />
@@ -19,6 +16,12 @@
           <label class="form-label">Tên</label>
           <input v-model="form.firstName" type="text" class="form-control" required />
         </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" :value="reader.email" required />
+        </div>
+        
         <div class="col-md-6">
           <label class="form-label">Ngày sinh</label>
           <input v-model="form.birthDate" type="date" class="form-control" />
@@ -54,7 +57,7 @@ export default {
   props: {
     reader: { type: Object, required: true },
   },
-  emits: ["update"], // ✅ chỉ emit "update", parent nhận payload ngay
+  emits: ["update"], 
   data() {
     return {
       form: {

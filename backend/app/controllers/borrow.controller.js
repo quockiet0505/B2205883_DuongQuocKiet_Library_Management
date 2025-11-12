@@ -72,6 +72,20 @@ class BorrowController {
             next(err);
         }
     }
+
+
+    static async cancelBorrow(req, res, next) {
+        try {
+          const borrow = await BorrowService.cancelBorrow(req.params.id);
+          res.status(200).json({
+            message: "Borrow request cancelled successfully",
+            data: borrow,
+          });
+        } catch (err) {
+          next(err);
+        }
+      }
+      
 }
 
 module.exports = BorrowController;

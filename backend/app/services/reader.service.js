@@ -14,7 +14,7 @@ class ReaderService {
 
     console.log("[Service] getReaderById input id:", id);
 
-    const reader = await Reader.findById(id); // ✅ dùng _id
+    const reader = await Reader.findById(id); 
     if (!reader) throw ApiError.notFound("Reader not found");
 
     console.log("[Service] Found reader:", reader._id);
@@ -25,7 +25,7 @@ class ReaderService {
   static async updateReader(id, data) {
     if (!id) throw ApiError.badRequest("Reader ID is required");
 
-    const reader = await Reader.findById(id); // ✅ dùng _id
+    const reader = await Reader.findById(id); 
     if (!reader) throw ApiError.notFound("Reader not found");
 
     Object.assign(reader, data);
@@ -36,7 +36,7 @@ class ReaderService {
   static async deleteReader(id) {
     if (!id) throw ApiError.badRequest("Reader ID is required");
 
-    const reader = await Reader.findById(id); // ✅ dùng _id
+    const reader = await Reader.findById(id);
     if (!reader) throw ApiError.notFound("Reader not found");
 
     await Reader.deleteOne({ _id: reader._id });

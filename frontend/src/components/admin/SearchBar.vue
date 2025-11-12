@@ -60,6 +60,7 @@ export default {
   padding: 0.5rem 1rem;
   height: 100%;
   font-size: 1.1rem;
+  border-right: none;
 }
 
 .search-input:focus {

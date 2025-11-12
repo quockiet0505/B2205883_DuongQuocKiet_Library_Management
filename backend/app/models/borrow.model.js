@@ -27,7 +27,7 @@ const borrowSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["processing", "accepted", "refused", "returned"],
+      enum: ["processing", "accepted", "refused", "returned", "overdue", "cancelled"],
       default: "processing",
     },
     
