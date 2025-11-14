@@ -66,14 +66,22 @@ class StaffAuthService {
   
 
   static async register({ fullName, email, phone, password, address, position = "Staff" }) {
-    if (!fullName || !email || !phone || !password)
-      throw ApiError.badRequest("All fields are required");
+    // if (!fullName || !email || !phone || !password)
+    //   throw ApiError.badRequest("All fields are required");
+
+    if(!fullName) throw ApiError.badRequest("Full name is required");
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^\d{9,11}$/;
     if (!emailRegex.test(email)) throw ApiError.badRequest("Invalid email format");
+
     if (!phoneRegex.test(phone)) throw ApiError.badRequest("Invalid phone number");
+
     if (password.length < 6) throw ApiError.badRequest("Password must be at least 6 characters");
+
+    if(!address) throw ApiError.badRequest("Address is required");
+
+    if(!position) throw ApiError.badRequest("Position is required");
 
     const existing = await Staff.findOne({ email });
     if (existing) throw ApiError.badRequest("Email already exists");
@@ -154,14 +162,25 @@ class ReaderAuthService {
     };
   }
 
-  static async register({ firstName, lastName, phone, email, password }) {
-    if (!firstName || !lastName || !phone || !email || !password)
-      throw ApiError.badRequest("All fields are required");
+  static async register({ firstName, lastName, email , phone, birthDate,gender, address, password }) {
+    // if (!firstName || !lastName || !phone || !email || !password)
+    //   throw ApiError.badRequest("All fields are required");
+    if(!firstName) throw ApiError.badRequest("First name is required");
+    if(!lastName) throw ApiError.badRequest("Last name is required");
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^\d{9,11}$/;
     if (!emailRegex.test(email)) throw ApiError.badRequest("Invalid email format");
+
     if (!phoneRegex.test(phone)) throw ApiError.badRequest("Invalid phone number");
+
+    if(!birthDate) throw ApiError.badRequest("Birth date is required");
+
+    if(!gender) throw ApiError.badRequest("Gender is required");
+
+    if(!address) throw ApiError.badRequest("Address is required");
+
+
     if (password.length < 6) throw ApiError.badRequest("Password must be at least 6 characters");
 
     const lastReader = await Reader.findOne().sort({ createdAt: -1 });
@@ -180,8 +199,11 @@ class ReaderAuthService {
       readerId: newReaderId,
       firstName,
       lastName,
-      phone,
       email,
+      phone,
+      birthDate,
+      gender,
+      address,
       password: hashedPassword,
     });
 
@@ -194,8 +216,11 @@ class ReaderAuthService {
         readerId: reader.readerId,
         firstName: reader.firstName,
         lastName: reader.lastName,
+        email: reader.email,
         phone: reader.phone,
-        email: reader.email
+        birthDate: reader.birthDate,
+        gender: reader.gender,
+        address: reader.address,
       },
     };
   }

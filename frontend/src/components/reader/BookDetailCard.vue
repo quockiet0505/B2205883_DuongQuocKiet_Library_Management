@@ -21,7 +21,6 @@
           <h5 class="mb-3">Borrow this book</h5>
 
           <div class="row g-2">
-            <!-- Quantity -->
             <div class="col-md-4">
               <label class="form-label">Quantity</label>
               <input
@@ -34,7 +33,6 @@
               />
             </div>
 
-            <!-- Expected borrow date -->
             <div class="col-md-4">
               <label class="form-label">Expected Borrow Date</label>
               <input
@@ -45,7 +43,6 @@
               />
             </div>
 
-            <!-- Expected return date -->
             <div class="col-md-4">
               <label class="form-label">Expected Return Date (+7 days)</label>
               <input
@@ -80,10 +77,12 @@
 export default {
   name: "BookDetailCard",
   props: { book: { type: Object, required: false } },
+
   data() {
     const today = new Date().toISOString().split("T")[0];
     const returnDate = new Date();
     returnDate.setDate(new Date().getDate() + 7);
+
     return {
       submitting: false,
       defaultImage: "/assets/images/book-placeholder.png",
@@ -94,6 +93,7 @@ export default {
       },
     };
   },
+
   methods: {
     formatPrice(p) {
       if (!p && p !== 0) return "-";
@@ -102,10 +102,12 @@ export default {
         currency: "USD",
       });
     },
+
     async borrowBook() {
       const readerId = localStorage.getItem("readerId");
+
       if (!readerId) {
-        alert("Please login to borrow books");
+        this.$toast("Please login to borrow books", "error");
         this.$router.push("/reader/login");
         return;
       }
@@ -115,11 +117,12 @@ export default {
         this.borrowForm.quantity < 1 ||
         this.borrowForm.quantity > this.book.quantity
       ) {
-        alert(`Please enter a valid quantity (1–${this.book.quantity})`);
+        this.$toast(`Please enter a valid quantity (1–${this.book.quantity})`, "error");
         return;
       }
 
       this.submitting = true;
+
       try {
         await this.$store.dispatch("reader/createBorrow", {
           readerId,
@@ -130,13 +133,16 @@ export default {
         });
 
         await this.$store.dispatch("reader/fetchBorrowHistory");
-        alert("Borrow request sent successfully!");
+
+        this.$toast("Borrow request sent successfully!");
         this.$router.push("/reader/history");
+
       } catch (err) {
-        alert(
+        this.$toast(
           err.response?.data?.message ||
             err.message ||
-            "Failed to send borrow request"
+            "Failed to send borrow request",
+          "error"
         );
       } finally {
         this.submitting = false;

@@ -28,7 +28,7 @@
                 class="form-control search-input"
                 placeholder="Tìm kiếm theo tiêu đề hoặc tác giả..."
                 v-model="q"
-                @input="emitQ"
+                
               />
               <button type="submit" class="btn search-btn">
                 <i class="fas fa-search"></i>
@@ -39,7 +39,9 @@
           <!-- Menu với icon -->
           <ul class="navbar-nav ms-auto align-items-center">
             <li class="nav-item">
-              <router-link class="nav-link d-flex align-items-center menu-link" to="/reader">
+              <router-link class="nav-link d-flex align-items-center menu-link" to="/reader"
+              @click='resetSearch'
+              >
                 <i class="fas fa-home me-1"></i> Home
               </router-link>
             </li>
@@ -95,11 +97,18 @@ export default {
       this.$router.push("/reader/login");
     },
     emitQ() { this.$emit("update:modelValue", this.q); },
+
     submitSearch() {
-      this.emitQ();
+      this.$emit("update:modelValue", this.q);
       console.log("Search submitted:", this.q);
     },
-  },
+
+    resetSearch() {
+      this.q = "";
+      this.$emit("update:modelValue", "");
+    }
+
+  }
 };
 </script>
 

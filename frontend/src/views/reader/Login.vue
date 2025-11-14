@@ -5,12 +5,14 @@
         <h4 class="text-center mb-3">Reader Login</h4>
         <form @submit.prevent="onLogin">
           <div class="mb-3">
-            <input v-model="email" type="email" class="form-control" placeholder="Email" />
+            <label for="email" class="mb-1">Email</label>
+            <input v-model="email" type="email" class="form-control"  />
           </div>
           <div class="mb-3">
-            <input v-model="password" type="password" class="form-control" placeholder="Password" />
+            <label for="password" class="mb-1">Password</label>
+            <input v-model="password" type="password" class="form-control"  />
           </div>
-          <button class="btn btn-primary w-100" :disabled="submitting">
+          <button class="btn btn-success w-100" :disabled="submitting">
             {{ submitting ? "Logging in..." : "Login" }}
           </button>
         </form>

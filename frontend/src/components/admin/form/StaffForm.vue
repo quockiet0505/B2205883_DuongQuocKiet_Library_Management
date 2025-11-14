@@ -1,82 +1,151 @@
 <template>
-     <div class="card p-3 shadow">
-          <h5 class="mb-3">
-               {{ isEdit ? "Edit Staff" : "Add New Staff" }}
-          </h5>
+     <div class="card p-3 shadow-sm">
+       <h5 class="mb-3">{{ isEdit ? "Edit Staff" : "Add New Staff" }}</h5>
+   
+       <form @submit.prevent="handleSubmit">
+         <div class="row g-3">
+   
+           <div class="col-md-6">
+             <label class="form-label">Full Name</label>
+             <input v-model="form.fullName" class="form-control" />
+           </div>
+   
+           <div class="col-md-6">
+             <label class="form-label">Email</label>
+             <input type="email" v-model="form.email" class="form-control" />
+           </div>
+   
+           <div class="col-md-6">
+             <label class="form-label">Phone</label>
+             <input v-model="form.phone" class="form-control" />
+           </div>
+   
+           <div class="col-md-6">
+             <label class="form-label">Address</label>
+             <input v-model="form.address" class="form-control" />
+           </div>
+   
+           <div class="col-md-6">
+             <label class="form-label">Role</label>
+             <select v-model="form.position" class="form-select">
+               <option value="Staff">Staff</option>
+               <option value="Admin">Admin</option>
+               <option value="Manager">Manager</option>
+             </select>
+           </div>
 
-          <form  @submit.prevent="handleSubmit">
-               <div class="row g-3">
-                    <div class="col-md-6">
-                         <label for="form-label">FullName</label>
-                         <input v-model="form.fullName" type="text" class="form-control" required />
-                    </div>
-
-                   <div class="col-md-6">
-                         <label for="form-label">Email</label>
-                         <input v-model="form.email" type="email" class="form-control" required />
-                   </div>
-
-                   <div class="col-md-6">
-                         <label for="form-label">Password</label>
-                         <input v-model="form.password" type="password" class="form-control" required />
-                   </div>
-
-                   <div class="col-md-6">
-                         <label for="form-label">Phone</label>
-                         <input v-model="form.phone" type="text" class="form-control" required />
-                   </div>
-
-                   <div class="col-md-6">
-                         <label for="form-label">Address</label>
-                         <input v-model="form.address" type="text" class="form-control" required />
-                   </div>
-
-                    <div class="col-md-6">
-                          <label for="form-label">Role</label>
-                          <select v-model="form.position" class="form-select" required>
-                                <option value="Staff">Staff</option>
-                                <option value="Admin">Admin</option>
-                          </select>
-                    </div>
-
-                    <div class="cl-md-6" v-if= '!isEdit'>
-                         <label for="form-label">Password</label>
-                         <input v-model="form.password" type="password" class="form-control" required />
-                    </div>
-
-                    <div class="col-12 text-end mt-3">
-                         <button type="submit" class="btn btn-success me-2">{{ isEdit ?"Save" :"Add" }}</button>
-                         <button type="button" class="btn btn-secondary" @click="$emit('cancel')">Cancel</button>
-                    </div>
-               </div>
-          </form>
+           <div class="col-md-6"></div>
+   
+           <!-- PASSWORD ONLY WHEN CREATE -->
+           <div class="col-md-6" v-if="!isEdit">
+             <label class="form-label">Password</label>
+             <input type="password" v-model="form.password" class="form-control" />
+           </div>
+   
+           <div class="col-md-6" v-if="!isEdit">
+             <label class="form-label">Confirm Password</label>
+             <input type="password" v-model="form.confirmPassword" class="form-control" />
+           </div>
+   
+           <div class="col-12 text-end mt-3">
+             <button type="submit" class="btn btn-success me-2">
+               {{ isEdit ? "Save Changes" : "Add Staff" }}
+             </button>
+             <button type="button" class="btn btn-secondary" @click="$emit('cancel')">
+               Cancel
+             </button>
+           </div>
+   
+         </div>
+       </form>
      </div>
-</template>
-
-<script>
-     export default{
-          name: "StaffForm",
-          props: { staff: Object },
-          data(){
-               return {
-                    form: { fullName: "", email: "", phone: "", position: "Staff", password: "" },
-               };
-          },
-
-          computed:{
-               isEdit(){
-                    return !!this.staff?._id;
-               }
-          },
-
-          mounted(){
-               if(this.staff) Object.assign(this.form, this.staff);
-          },
-
-          methods:{
-               handleSubmit(){
-                    this.$emit("save", { ...this.form });
-               }
-          }    
-     }
-</script>
+   </template>
+   
+   <script>
+   export default {
+     name: "StaffForm",
+     props: { staff: Object },
+   
+     data() {
+       return {
+         form: {
+           fullName: "",
+           email: "",
+           phone: "",
+           address: "",
+           position: "Staff",
+           password: "",
+           confirmPassword: "",
+         },
+       };
+     },
+   
+     computed: {
+       isEdit() {
+         return !!this.staff?._id;
+       },
+     },
+   
+     watch: {
+       staff: {
+         immediate: true,
+         handler(val) {
+           if (val) {
+             this.form = {
+               fullName: val.fullName || "",
+               email: val.email || "",
+               phone: val.phone || "",
+               address: val.address || "",
+               position: val.position || "Staff",
+               password: "",
+               confirmPassword: "",
+             };
+           }
+         },
+       },
+     },
+   
+     methods: {
+       handleSubmit() {
+         const required = [
+           ["fullName", "Full name is required"],
+           ["email", "Email is required"],
+           ["phone", "Phone is required"],
+           ["address", "Address is required"],
+         ];
+   
+         for (const [f, msg] of required) {
+           if (!this.form[f]) return this.$toast(msg, "error");
+         }
+   
+         if (!this.isEdit) {
+           if (!this.form.password) return this.$toast("Password is required", "error");
+           if (this.form.password.length < 6)
+             return this.$toast("Password must be at least 6 characters", "error");
+           if (this.form.password !== this.form.confirmPassword)
+             return this.$toast("Passwords do not match", "error");
+         }
+   
+         const payload = {
+           fullName: this.form.fullName,
+           email: this.form.email,
+           phone: this.form.phone,
+           address: this.form.address,
+           position: this.form.position,
+         };
+   
+         if (!this.isEdit) payload.password = this.form.password;
+   
+         this.$emit("save", payload);
+       },
+     },
+   };
+   </script>
+   
+   <style scoped>
+   .card {
+     max-width: 800px;
+     margin: 0 auto;
+   }
+   </style>
+   

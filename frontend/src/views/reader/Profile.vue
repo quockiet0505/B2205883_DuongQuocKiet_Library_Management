@@ -1,12 +1,10 @@
 <template>
   <ReaderLayout>
     <div class="container mt-4">
-      <div v-if="error" class="alert alert-danger">{{ error }}</div>
 
       <ProfileForm
-        v-else-if="readerInfo"
+        v-if="readerInfo"
         :reader="readerInfo"
-        @save="onSubmit"
         @update="onSubmit"
       />
 
@@ -24,19 +22,20 @@ import authService from "@/services/auth.service";
 export default {
   name: "ReaderProfile",
   components: { ReaderLayout, ProfileForm },
+
   data() {
     return {
       readerInfo: null,
       readerId: null,
-      error: null,
     };
   },
+
   async created() {
     const token = authService.getReaderToken();
-    const id = authService.getReaderId(); // Lấy _id MongoDB
+    const id = authService.getReaderId();
 
     if (!token || !id) {
-      this.error = "Bạn chưa đăng nhập hoặc thiếu thông tin người dùng.";
+      this.$toast("Bạn chưa đăng nhập!", "error");
       return;
     }
 
@@ -45,24 +44,30 @@ export default {
     try {
       this.readerInfo = await readerService.getReaderById(id);
     } catch (e) {
-      this.error =
-        e.response?.data?.message || e.message || "Không thể tải thông tin người dùng.";
+      this.$toast(
+        e.response?.data?.message || "Không thể tải thông tin người dùng.",
+        "error"
+      );
     }
   },
+
   methods: {
     async onSubmit(payload) {
-        try {
-          const res = await readerService.updateReader(this.readerId, payload);
-          //Lấy ra reader từ response
-          const updated = res.reader || res.data || res;
-          this.readerInfo = { ...this.readerInfo, ...updated };
-          alert("Cập nhật hồ sơ thành công!");
-        } catch (e) {
-          console.error("Update error:", e);
-          alert(e.response?.data?.message || "Cập nhật hồ sơ thất bại!");
-        }
-      }
+      try {
+        const res = await readerService.updateReader(this.readerId, payload);
+        const updated = res.reader || res.data || res;
 
+        this.readerInfo = { ...this.readerInfo, ...updated };
+
+        this.$toast("Cập nhật hồ sơ thành công!");
+
+      } catch (e) {
+        this.$toast(
+          e.response?.data?.message || "Cập nhật hồ sơ thất bại!",
+          "error"
+        );
+      }
+    },
   },
 };
 </script>

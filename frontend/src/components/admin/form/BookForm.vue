@@ -6,19 +6,19 @@
          <div class="row g-3">
            <div class="col-md-6">
              <label class="form-label">Title</label>
-             <input v-model="form.title" type="text" class="form-control" required />
+             <input v-model="form.title" type="text" class="form-control"  />
            </div>
    
            <div class="col-md-6">
              <label class="form-label">Author</label>
-             <input v-model="form.author" type="text" class="form-control" required />
+             <input v-model="form.author" type="text" class="form-control"  />
            </div>
    
            <div class="col-md-6">
              <label class="form-label">Publisher</label>
-             <select v-model="form.publisherId" class="form-select" required>
+             <select v-model="form.publisherId" class="form-select" >
                <option disabled value="">-- Select Publisher --</option>
-               <option v-for="p in publishers" :key="p._id" :value="p._id">
+               <option v-for="p in publishers" :key="p.publisherId" :value="p.publisherId">
                  {{ p.name }}
                </option>
              </select>
@@ -26,17 +26,17 @@
    
            <div class="col-md-3">
              <label class="form-label">Year</label>
-             <input v-model.number="form.publishYear" type="number" class="form-control" />
+             <input v-model.number="form.publishYear"  class="form-control" />
            </div>
    
            <div class="col-md-3">
              <label class="form-label">Quantity</label>
-             <input v-model.number="form.quantity" type="number" min="1" class="form-control" />
+             <input v-model.number="form.quantity"   class="form-control" />
            </div>
    
            <div class="col-md-3">
              <label class="form-label">Price</label>
-             <input v-model.number="form.price" type="number" min="0" class="form-control" />
+             <input v-model.number="form.price"  class="form-control" />
            </div>
    
            <div class="col-md-12">
@@ -80,9 +80,36 @@
          return !!this.book?._id;
        },
      },
-     mounted() {
-       if (this.book) Object.assign(this.form, this.book);
-     },
+     watch: {
+      book: {
+        immediate: true,
+        handler(newVal) {
+          if (newVal) {
+            this.form = {
+              title: newVal.title || "",
+              author: newVal.author || "",
+              publisherId: newVal.publisherId || "",
+              publishYear: newVal.publishYear || "",
+              quantity: newVal.quantity || 1,
+              price: newVal.price || 0,
+              description: newVal.description || "",
+            };
+          } else {
+            this.form = {
+              title: "",
+              author: "",
+              publisherId: "",
+              publishYear: "",
+              quantity: 1,
+              price: 0,
+              description: "",
+            };
+          }
+        },
+      },
+    }
+
+      ,
      methods: {
        handleSubmit() {
          this.$emit("save", { ...this.form });

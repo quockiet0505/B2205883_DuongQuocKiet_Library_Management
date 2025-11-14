@@ -5,18 +5,34 @@ class PublisherService {
 
     // Tao nha xuat ban moi
 
-  static async createPublisher(data) {
-    if (!data || !data.publisherId || !data.name)
-      throw ApiError.badRequest("Publisher ID and name are required");
-
-    const exist = await Publisher.findOne({
-      $or: [{ publisherId: data.publisherId }, { name: data.name }]
-    });
-    if (exist) throw ApiError.conflict("Publisher already exists");
-
-    const publisher = new Publisher(data);
-    return await publisher.save();
-  }
+    static async createPublisher(data) {
+      if (!data || !data.name)
+        throw ApiError.badRequest("Publisher name is required!");
+    
+      //  Tạo publisherId 
+      if (!data.publisherId) {
+        const lastPub = await Publisher.findOne()
+          .sort({ publisherId: -1 })
+          .collation({ locale: "en", numericOrdering: true });
+    
+        let newPublisherId = "P001";
+    
+        if (lastPub && lastPub.publisherId) {
+          const num = parseInt(lastPub.publisherId.replace("P", ""), 10) + 1;
+          newPublisherId = `P${String(num).padStart(3, "0")}`;
+        }
+    
+        data.publisherId = newPublisherId;
+      }
+    
+      // Check trùng tên
+      const exist = await Publisher.findOne({ name: data.name });
+      if (exist) throw ApiError.conflict("Publisher already exists!");
+    
+      const publisher = new Publisher(data);
+      return await publisher.save();
+    }
+    
 
 // Lay tat ca nha xuat ban
   static async getAllPublishers() {

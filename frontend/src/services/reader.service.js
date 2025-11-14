@@ -11,10 +11,11 @@ export default{
             return res.data;
      },
 
-     async createReader(data){
-            const res = await api.post("/reader", data);
-            return res.data;
-     },
+     //  ADMIN TẠO READER = DÙNG REGISTER API
+       async createReader(data) {
+              const res = await api.post("/auth/reader/register", data);
+              return res.data;
+       },
 
      async updateReader(id, data){
             const res = await api.put(`/reader/${id}`, data);

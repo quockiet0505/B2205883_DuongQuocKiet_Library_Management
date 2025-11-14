@@ -1,4 +1,4 @@
-import api from "@/services/api"; // ✅ Dùng api instance thay cho axios
+import api from "@/services/api";
 
 const state = {
   admin: null,
@@ -14,11 +14,13 @@ const state = {
 const getters = {
   isAuthenticated: (state) => !!state.token,
   adminInfo: (state) => state.admin,
+
   allBooks: (state) => state.books,
   allReaders: (state) => state.readers,
   allBorrows: (state) => state.borrows,
   allPublishers: (state) => state.publishers,
   allStaffs: (state) => state.staffs,
+
   dashboardStats: (state) => state.stats,
 };
 
@@ -26,32 +28,33 @@ const actions = {
   // ----------------- AUTH -----------------
   async login({ commit }, credentials) {
     try {
-      const res = await api.post("/auth/staff/login", credentials); //  Dùng api
+      const res = await api.post("/auth/staff/login", credentials);
+
       commit("setAdmin", res.data.staff);
       commit("setToken", res.data.token);
+
       localStorage.setItem("adminToken", res.data.token);
       localStorage.setItem("adminId", res.data.staff.id);
+
       return res.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || "Login failed");
     }
   },
 
-  // ----------------- CURRENT ADMIN -----------------
-async fetchCurrentAdmin({ commit }) {
-  try {
-    const adminId = localStorage.getItem("adminId");
-    if (!adminId) throw new Error("Admin ID not found in localStorage");
+  async fetchCurrentAdmin({ commit }) {
+    try {
+      const adminId = localStorage.getItem("adminId");
+      if (!adminId) throw new Error("Admin ID not found");
 
-    const res = await api.get(`/staff/${adminId}`);
-    commit("setAdmin", res.data || res);
-    return res.data || res;
-  } catch (error) {
-    console.error("Failed to fetch current admin:", error);
-    throw error;
-  }
-},
-
+      const res = await api.get(`/staff/${adminId}`);
+      commit("setAdmin", res.data || res);
+      return res.data || res;
+    } catch (error) {
+      console.error("Failed to fetch current admin:", error);
+      throw error;
+    }
+  },
 
   logout({ commit }) {
     commit("clearAdmin");
@@ -61,10 +64,21 @@ async fetchCurrentAdmin({ commit }) {
   },
 
   // ----------------- BOOK -----------------
-  async fetchBooks({ commit }) {
+  async fetchBooks({ commit, state }) {
     try {
       const res = await api.get("/book");
-      const books = res.data.data || res.data;
+      let books = res.data.data || res.data;
+
+      // Map dữ liệu: thêm id, publisherName
+      books = books.map(b => {
+        const pub = state.publishers.find(p => p._id === b.publisherId);
+        return {
+          ...b,
+          id: b.bookId || b._id,
+          publisherName: pub?.name || "—",
+        };
+      });
+
       commit("setBooks", books);
     } catch (error) {
       console.error("Failed to fetch books:", error);
@@ -76,7 +90,13 @@ async fetchCurrentAdmin({ commit }) {
   async fetchReaders({ commit }) {
     try {
       const res = await api.get("/reader");
-      const readers = res.data.data || res.data;
+      let readers = res.data.data || res.data;
+
+      readers = readers.map(r => ({
+        ...r,
+        id: r.readerId || r._id,
+      }));
+
       commit("setReaders", readers);
     } catch (error) {
       console.error("Failed to fetch readers:", error);
@@ -88,7 +108,13 @@ async fetchCurrentAdmin({ commit }) {
   async fetchBorrows({ commit }) {
     try {
       const res = await api.get("/borrow");
-      const borrows = res.data.data || res.data;
+      let borrows = res.data.data || res.data;
+
+      borrows = borrows.map(b => ({
+        ...b,
+        id: b.borrowId || b._id,
+      }));
+
       commit("setBorrows", borrows);
     } catch (error) {
       console.error("Failed to fetch borrows:", error);
@@ -100,7 +126,13 @@ async fetchCurrentAdmin({ commit }) {
   async fetchPublishers({ commit }) {
     try {
       const res = await api.get("/publisher");
-      const publishers = res.data.data || res.data;
+      let publishers = res.data.data || res.data;
+
+      publishers = publishers.map(p => ({
+        ...p,
+        id: p.publisherId || p._id,
+      }));
+
       commit("setPublishers", publishers);
     } catch (error) {
       console.error("Failed to fetch publishers:", error);
@@ -127,7 +159,13 @@ async fetchCurrentAdmin({ commit }) {
   async fetchStaffs({ commit }) {
     try {
       const res = await api.get("/staff");
-      const staffs = res.data.data || res.data;
+      let staffs = res.data.data || res.data;
+
+      staffs = staffs.map(s => ({
+        ...s,
+        id: s.staffId || s._id,
+      }));
+
       commit("setStaffs", staffs);
     } catch (error) {
       console.error("Failed to fetch staffs:", error);
@@ -179,13 +217,16 @@ async fetchCurrentAdmin({ commit }) {
 const mutations = {
   setAdmin: (state, admin) => (state.admin = admin),
   setToken: (state, token) => (state.token = token),
+
   clearAdmin: (state) => (state.admin = null),
   clearToken: (state) => (state.token = ""),
+
   setBooks: (state, books) => (state.books = books),
   setReaders: (state, readers) => (state.readers = readers),
   setBorrows: (state, borrows) => (state.borrows = borrows),
   setPublishers: (state, publishers) => (state.publishers = publishers),
   setStaffs: (state, staffs) => (state.staffs = staffs),
+
   setStats: (state, stats) => (state.stats = stats),
 };
 

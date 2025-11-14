@@ -17,65 +17,74 @@ function decodeJwt(token) {
 }
 
 export default {
-  // Admin
+  // ===================== STAFF LOGIN =====================
   async loginAdmin(credentials) {
     const payload = {
-      email: (credentials?.email || "").toString().trim(),
+      email: (credentials?.email || "").trim(),
       password: credentials?.password,
     };
-    const res = await api.post("/auth/staff/login", payload);
-    if (res.data.token) localStorage.setItem("adminToken", res.data.token);
-    return res.data;
-  },
 
-  async registerAdmin(data) {
-    const res = await api.post("/auth/staff/register", data);
+    const res = await api.post("/auth/staff/login", payload);
+
+    const token = res.data?.token;
+    if (token) localStorage.setItem("adminToken", token);
+
+    // Lưu ID staff đăng nhập
+    const staff = res.data?.staff || {};
+    const staffId = staff.id || staff._id;
+    if (staffId) localStorage.setItem("adminId", staffId);
+
     return res.data;
   },
 
   logoutAdmin() {
     localStorage.removeItem("adminToken");
+    localStorage.removeItem("adminId");
   },
 
   getAdminToken() {
     return localStorage.getItem("adminToken");
   },
 
-  // Reader
+  getAdminId() {
+    return localStorage.getItem("adminId");
+  },
+
+  // ===================== STAFF REGISTER =====================
+  async registerAdmin(data) {
+    const res = await api.post("/auth/staff/register", data);
+    return res.data;
+  },
+
+  // ===================== READER LOGIN =====================
   async loginReader(credentials) {
     const payload = {
-      email: (credentials?.email || "").toString().trim(),
+      email: (credentials?.email || "").trim(),
       password: credentials?.password,
     };
-    const res = await api.post("/auth/reader/login", payload);
 
+    const res = await api.post("/auth/reader/login", payload);
     const token = res.data?.token;
+
     if (token) localStorage.setItem("readerToken", token);
 
-    const reader = res.data?.reader || res.data?.data || {};
-    const decoded = decodeJwt(token);
+    const reader = res.data?.reader;
+    const id = reader?.id || reader?._id;
+    if (id) localStorage.setItem("readerId", id);
 
-    const readerId = reader._id || res.data?._id || decoded?.id || decoded?.sub || ""; 
-
-    if (readerId) localStorage.setItem("readerId", readerId);
     return res.data;
   },
 
   async registerReader(data) {
     const res = await api.post("/auth/reader/register", data);
 
-    localStorage.removeItem("readerToken");
-    localStorage.removeItem("readerId");
-
     const token = res.data?.token;
     if (token) localStorage.setItem("readerToken", token);
 
-    const reader = res.data?.reader || res.data?.data || {};
-    const decoded = decodeJwt(token);
+    const reader = res.data?.reader;
+    const id = reader?.id || reader?._id;
+    if (id) localStorage.setItem("readerId", id);
 
-    const readerId = reader._id || res.data?._id || decoded?.id || ""; 
-
-    if (readerId) localStorage.setItem("readerId", readerId);
     return res.data;
   },
 
@@ -84,11 +93,7 @@ export default {
     localStorage.removeItem("readerId");
   },
 
-  getReaderToken() {
-    return localStorage.getItem("readerToken");
-  },
-
   getReaderId() {
     return localStorage.getItem("readerId");
-  },
+  }
 };

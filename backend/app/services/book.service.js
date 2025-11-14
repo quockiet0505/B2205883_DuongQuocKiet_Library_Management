@@ -5,10 +5,30 @@ const ApiError = require("../utils/api-error");
 
 class BookService {
 
-// Tao sach moi
+  // Tạo sách
   static async createBook(data) {
     if (!data || !data.title)
       throw ApiError.badRequest("Book title is required!");
+
+    if (!data.author)
+      throw ApiError.badRequest("Author is required!");
+
+    if (!data.publisherId)
+      throw ApiError.badRequest("Publisher is required!");
+
+    if (!data.publishYear  || data.publishYear <0)
+      throw ApiError.badRequest("PublishYear is required!");
+
+    if (!data.quantity || data.quantity < 0)
+      throw ApiError.badRequest("Quantity is required!");
+
+    if (!data.publisherId)
+      throw ApiError.badRequest("Publisher is required!");
+
+    if (!data.price || data.price < 0)
+      throw ApiError.badRequest("Price must be >= 0!");
+    
+    
 
     // Tạo bookId tự động
     if (!data.bookId) {
@@ -25,7 +45,7 @@ class BookService {
     }
 
     if (data.publisherId) {
-      const publisher = await Publisher.findById(data.publisherId);
+      const publisher = await Publisher.findOne({ publisherId: data.publisherId });
       if (!publisher) throw ApiError.badRequest("Publisher not found!");
     }
 
@@ -33,21 +53,21 @@ class BookService {
     return await newBook.save();
   }
 
-//   Lay tat ca sach
-
+  // Lấy tất cả sách
   static async getAllBooks() {
-    return await Book.find().populate("publisherId", "name");
+    console.log("Getting all books", await Book.find());
+    return await Book.find(); // không populate nữa
   }
 
-//  Lay sach theo ID
+  // Lấy sách theo ID
   static async getBookById(id) {
     if (!id) throw ApiError.badRequest("Book ID is required");
-    const book = await Book.findById(id).populate("publisherId", "name");
+    const book = await Book.findById(id);
     if (!book) throw ApiError.notFound("Book not found");
     return book;
   }
 
-//  Cap nhat sach
+  // Cập nhật
   static async updateBook(id, data) {
     if (!id) throw ApiError.badRequest("Book ID is required");
 
@@ -55,7 +75,7 @@ class BookService {
     if (!book) throw ApiError.notFound("Book not found");
 
     if (data.publisherId) {
-      const publisher = await Publisher.findById(data.publisherId);
+      const publisher = await Publisher.findOne({ publisherId: data.publisherId });
       if (!publisher) throw ApiError.badRequest("Publisher not found");
     }
 
@@ -67,7 +87,7 @@ class BookService {
     return await book.save();
   }
 
-// Xoa sach
+  // Xóa
   static async deleteBook(id) {
     if (!id) throw ApiError.badRequest("Book ID is required");
 

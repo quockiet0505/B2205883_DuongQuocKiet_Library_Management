@@ -1,13 +1,17 @@
 <template>
      <div id="app">
        <router-view />
+       <ToastMessage />
      </div>
    </template>
    
    <script>
+   import ToastMessage from "@/components/common/ToastMessage.vue";
    export default {
      name: "App",
+     components: { ToastMessage }
    };
+   
    </script>
    
    <style>

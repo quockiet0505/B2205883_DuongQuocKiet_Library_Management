@@ -1,20 +1,29 @@
 <template>
-  <div class="search-bar mb-3">
+  <div class="search-bar mb-3 d-flex align-items-center ">
     <form class="d-flex" @submit.prevent="handleSearch">
       <div class="input-group search-container">
+        
         <input
           type="text"
           class="form-control search-input"
           :placeholder="placeholder"
           v-model="searchQuery"
         />
+
         <button type="submit" class="btn search-btn">
           <i class="fas fa-search"></i>
         </button>
       </div>
     </form>
+
+    <!-- Nút Reset -->
+    <button type="button" class="btn reset-btn ms-3" v-if="searchQuery" @click="reset">
+          <!-- <i class="fas fa-times"></i> -->
+           Reset
+        </button>
   </div>
 </template>
+
 
 <script>
 export default {
@@ -33,6 +42,11 @@ export default {
   methods: {
     handleSearch() {
       this.$emit("search", this.searchQuery);
+    },
+
+    reset(){
+      this.searchQuery = "";
+      this.$emit("search", "");
     }
   }
 };
@@ -52,7 +66,7 @@ export default {
   border: 1px solid #ccc;
   overflow: hidden;
   width: 100%;
-  max-width: 500px;
+  max-width: 700px;
 }
 
 .search-input {
@@ -82,4 +96,15 @@ export default {
 .search-btn:hover {
   background-color: #0b5ed7;
 }
+
+
+.reset-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+}
+.reset-btn:hover {
+  background-color: #bb2d3b;
+}
+
 </style>

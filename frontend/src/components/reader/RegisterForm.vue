@@ -14,6 +14,18 @@
       </div>
 
       <div class="row">
+        <div class="mb-3 col-md-6">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" v-model="form.email"  />
+        </div>
+
+        <div class="mb-3 col-md-6">
+          <label class="form-label">Phone</label>
+          <input class="form-control" v-model="form.phone" />
+        </div>
+      </div>
+
+      <div class="row">
         <div class="col-md-6 mb-3">
           <label class="form-label">Birth date</label>
           <input type="date" class="form-control" v-model="form.birthDate" />
@@ -30,19 +42,11 @@
       </div>
 
       <div class="mb-3">
-        <label class="form-label">Phone</label>
-        <input class="form-control" v-model="form.phone" />
-      </div>
-
-      <div class="mb-3">
         <label class="form-label">Address</label>
         <input class="form-control" v-model="form.address" />
       </div>
 
-      <div class="mb-3">
-        <label class="form-label">Email</label>
-        <input type="email" class="form-control" v-model="form.email"  />
-      </div>
+      
 
       <div class="row">
         <div class="col-md-6 mb-3">
@@ -55,7 +59,6 @@
         </div>
       </div>
 
-      <div v-if="error" class="alert alert-danger small">{{ error }}</div>
 
       <button class="btn btn-success w-100">Register</button>
     </form>
@@ -65,7 +68,6 @@
 <script>
 export default {
   name: "RegisterForm",
-  props: { error: String },
   data() {
     return {
       form: {
@@ -83,6 +85,10 @@ export default {
   },
   methods: {
     onSubmit() {
+      if (this.form.password !== this.form.confirmPassword) {
+        this.$toast("Passwords do not match.", "error");
+        return;
+      }
       const payload = {
         lastName: this.form.lastName,
         firstName: this.form.firstName,

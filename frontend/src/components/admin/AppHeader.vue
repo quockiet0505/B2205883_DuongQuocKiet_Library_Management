@@ -28,7 +28,8 @@
               </router-link>
             </li>
             <li class="nav-item">
-              <router-link class="nav-link d-flex align-items-center menu-link" to="/admin/book">
+              <router-link class="nav-link d-flex align-items-center menu-link" to="/admin/book"
+              >
                 <i class="fas fa-book me-1"></i> Books
               </router-link>
             </li>

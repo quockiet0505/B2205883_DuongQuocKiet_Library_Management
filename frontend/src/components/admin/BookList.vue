@@ -6,7 +6,9 @@
       <i class="fas fa-plus"></i> Add Book
     </button>
 
-    <SearchBar placeholder="Search by title or author..." @search="handleSearch" />
+    <SearchBar placeholder="Search by title or author..."
+               @search="handleSearch"
+               ref="searchBox" />
 
     <div v-if="!filteredBooks.length" class="alert alert-info">No books found.</div>
 
@@ -21,13 +23,18 @@
           <th style="width: 120px;">Actions</th>
         </tr>
       </thead>
+
       <tbody>
         <tr v-for="book in filteredBooks" :key="book._id">
           <td>{{ book.title }}</td>
           <td>{{ book.author }}</td>
-          <td>{{ book.publisherId?.name || "—" }}</td>
+
+          <!-- LẤY TÊN NHÀ XUẤT BẢN -->
+          <td>{{ getPublisherName(book.publisherId) }}</td>
+
           <td>{{ book.quantity }}</td>
           <td>{{ formatPrice(book.price) }}</td>
+
           <td>
             <button class="btn btn-sm btn-warning me-2" @click="openEditForm(book)">
               <i class="fas fa-edit"></i>
@@ -53,6 +60,9 @@
         </div>
       </div>
     </div>
+    <!-- Them xac nhan xoa -->
+    <ConfirmModal ref="confirmModal" />
+
   </div>
 </template>
 
@@ -61,9 +71,11 @@ import SearchBar from "./SearchBar.vue";
 import BookForm from "./form/BookForm.vue";
 import bookService from "@/services/book.service";
 import publisherService from "@/services/publisher.service";
+import ConfirmModal from "@/components/common/ConfirmModal.vue";
 
 export default {
-  components: { SearchBar, BookForm },
+  components: { SearchBar, BookForm, ConfirmModal  },
+
   data() {
     return {
       books: [],
@@ -73,64 +85,101 @@ export default {
       editBook: null,
     };
   },
+
   computed: {
     filteredBooks() {
       const q = this.searchQuery.toLowerCase();
       return this.books.filter(
-        (b) =>
+        b =>
           b.title.toLowerCase().includes(q) ||
           b.author.toLowerCase().includes(q)
       );
     },
   },
+
   async created() {
     await this.fetchData();
   },
+
   methods: {
     async fetchData() {
       const [bookRes, pubRes] = await Promise.all([
         bookService.getAllBooks(),
         publisherService.getAllPublishers(),
       ]);
+
       this.books = bookRes.data || bookRes;
       this.publishers = pubRes.data || pubRes;
     },
+
+    /**  LẤY TÊN NHÀ XUẤT BẢN */
+    getPublisherName(publisherId) {
+      const pub = this.publishers.find(p => p.publisherId === publisherId);
+      return pub ? pub.name : "—";
+    }
+    ,
+
     handleSearch(q) {
       this.searchQuery = q;
     },
+
+    resetSearch() {
+      this.searchQuery = "";
+      this.$refs.searchBox.reset();
+    },
+
     openAddForm() {
       this.editBook = null;
       this.showForm = true;
     },
+
     openEditForm(book) {
       this.editBook = { ...book };
       this.showForm = true;
     },
+
     closeForm() {
       this.showForm = false;
       this.editBook = null;
     },
+
     async saveBook(data) {
       try {
         if (this.editBook?._id) {
           await bookService.updateBook(this.editBook._id, data);
-          alert("Book updated successfully!");
+          this.$toast("Book updated successfully!", "success");
         } else {
           await bookService.createBook(data);
-          alert("Book added successfully!");
+          this.$toast("Book added successfully!", "success");
         }
+
         await this.fetchData();
         this.closeForm();
-      } catch (e) {
-        alert(e.response?.data?.message || "Failed to save book");
+
+      } catch (err) {
+        console.error(err);
+        this.$toast(err.response?.data?.message || "An error occurred!", "error");
       }
-    },
+    }
+    ,
+
     async deleteBook(id) {
-      if (!confirm("Are you sure you want to delete this book?")) return;
-      await bookService.deleteBook(id);
-      await this.fetchData();
-      alert("Book deleted!");
-    },
+      this.$refs.confirmModal.open(
+        "Are you sure you want to delete this book?",
+        async () => {
+          try {
+            await bookService.deleteBook(id);
+            await this.fetchData();
+            this.$toast("Book deleted successfully!", "success");
+          } catch (err) {
+            console.error(err);
+            this.$toast(err.response?.data?.message || "Delete failed!", "error");
+          }
+        }
+      );
+    }
+    ,
+
     formatPrice(price) {
       return price ? `$${price.toFixed(2)}` : "—";
     },
@@ -141,10 +190,7 @@ export default {
 <style scoped>
 .modal-backdrop {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background: rgba(0, 0, 0, 0.3);
   display: flex;
   justify-content: center;

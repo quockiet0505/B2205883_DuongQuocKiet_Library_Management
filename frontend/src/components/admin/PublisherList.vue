@@ -15,18 +15,21 @@
         <tr>
           <th>Name</th>
           <th>Address</th>
-          <th style="width: 150px;">Actions</th>
+          <th width="150px">Actions</th>
         </tr>
       </thead>
+
       <tbody>
-        <tr v-for="pub in filteredPublishers" :key="pub._id">
-          <td>{{ pub.name }}</td>
-          <td>{{ pub.address || "—" }}</td>
+        <tr v-for="p in filteredPublishers" :key="p._id">
+          <td>{{ p.name }}</td>
+          <td>{{ p.address || "—" }}</td>
+
           <td>
-            <button class="btn btn-sm btn-warning me-2" @click="openEditForm(pub)">
+            <button class="btn btn-sm btn-warning me-2" @click="openEditForm(p)">
               <i class="fas fa-edit"></i>
             </button>
-            <button class="btn btn-sm btn-danger" @click="deletePublisher(pub._id)">
+
+            <button class="btn btn-sm btn-danger" @click="confirmDelete(p._id)">
               <i class="fas fa-trash"></i>
             </button>
           </td>
@@ -36,7 +39,7 @@
 
     <!-- Modal -->
     <div v-if="showForm" class="modal-backdrop">
-      <div class="modal-dialog">
+      <div class="modal-dialog modal-lg">
         <div class="modal-content p-3">
           <PublisherForm
             :publisher="editPub"
@@ -46,72 +49,96 @@
         </div>
       </div>
     </div>
+
+    <ConfirmModal ref="confirmModal" />
   </div>
 </template>
 
 <script>
 import SearchBar from "./SearchBar.vue";
 import PublisherForm from "./form/PublisherForm.vue";
+import ConfirmModal from "@/components/common/ConfirmModal.vue";
 import publisherService from "@/services/publisher.service";
 
 export default {
-  name: "PublisherList",
-  components: { SearchBar, PublisherForm },
+  components: { SearchBar, PublisherForm, ConfirmModal },
+
   data() {
     return {
       publishers: [],
       searchQuery: "",
-      showForm: false,
       editPub: null,
+      showForm: false,
     };
   },
+
+  computed: {
+    filteredPublishers() {
+      return this.publishers.filter((p) =>
+        p.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
+    },
+  },
+
   async created() {
     await this.fetchData();
   },
-  computed: {
-    filteredPublishers() {
-      const q = this.searchQuery.toLowerCase();
-      return this.publishers.filter((p) => p.name.toLowerCase().includes(q));
-    },
-  },
+
   methods: {
     async fetchData() {
       this.publishers = await publisherService.getAllPublishers();
     },
+
     handleSearch(q) {
       this.searchQuery = q;
     },
+
     openAddForm() {
       this.editPub = null;
       this.showForm = true;
     },
+
     openEditForm(pub) {
       this.editPub = { ...pub };
       this.showForm = true;
     },
+
     closeForm() {
       this.showForm = false;
       this.editPub = null;
     },
+
     async savePublisher(data) {
       try {
         if (this.editPub?._id) {
-          await publisherService.updatePublisher(this.editPub._id, data);
-          alert("Publisher updated successfully!");
+          await publisherService.updatedPublisher(this.editPub._id, data);
+          this.$toast("Publisher updated successfully!", "success");
         } else {
           await publisherService.createPublisher(data);
-          alert("Publisher added successfully!");
+          this.$toast("Publisher added successfully!", "success");
         }
+
         await this.fetchData();
         this.closeForm();
-      } catch (e) {
-        alert(e.response?.data?.message || "Failed to save publisher");
+
+      } catch (err) {
+        this.$toast(err.response?.data?.message || "Failed to save publisher", "error");
       }
     },
-    async deletePublisher(id) {
-      if (!confirm("Are you sure to delete this publisher?")) return;
-      await publisherService.deletePublisher(id);
-      await this.fetchData();
+
+    confirmDelete(id) {
+      this.$refs.confirmModal.open(
+        "Are you sure you want to delete this publisher?",
+        async () => {
+          try {
+            await publisherService.deletePublisher(id);
+            await this.fetchData();
+            this.$toast("Publisher deleted!", "success");
+          } catch (e) {
+            this.$toast("Delete failed!", "error");
+          }
+        }
+      );
     },
   },
 };
@@ -120,13 +147,11 @@ export default {
 <style scoped>
 .modal-backdrop {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
+  inset: 0;
+  background: rgba(0,0,0,0.3);
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 2000;
 }
 </style>

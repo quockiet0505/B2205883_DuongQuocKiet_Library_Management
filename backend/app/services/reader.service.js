@@ -25,10 +25,24 @@ class ReaderService {
   static async updateReader(id, data) {
     if (!id) throw ApiError.badRequest("Reader ID is required");
 
-    const reader = await Reader.findById(id); 
+    const reader = await Reader.findById(id);
     if (!reader) throw ApiError.notFound("Reader not found");
 
+    //  Nếu user muốn đổi mật khẩu
+    if (data.password) {
+      if (data.password.length < 6) {
+        throw ApiError.badRequest("Password must be at least 6 characters");
+      }
+
+      const hashed = await bcrypt.hash(data.password, 10);
+      reader.password = hashed;
+
+      delete data.password; // xóa để tránh Object.assign ghi đè
+    }
+
+    // cập nhật các field khác
     Object.assign(reader, data);
+
     return await reader.save();
   }
 

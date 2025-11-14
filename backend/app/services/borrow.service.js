@@ -3,128 +3,134 @@ const Book = require("../models/book.model");
 const ApiError = require("../utils/api-error");
 
 class BorrowService {
-  
-  // Tạo bản ghi mượn
+
+  // Tạo bản ghi mượn 
   static async createBorrow(data) {
-    if (!data || !data.readerId || !data.bookId)
+    if (!data.readerId || !data.bookId)
       throw ApiError.badRequest("Reader ID and Book ID are required");
 
     const book = await Book.findById(data.bookId);
-
     if (!book) throw ApiError.notFound("Book not found");
 
-    if (data.quantity && data.quantity > book.quantity)
-      throw ApiError.badRequest("Requested quantity exceeds available stock");
+    if (data.quantity > book.quantity)
+      throw ApiError.badRequest("Not enough books in stock");
+
+    // Trừ sách khi tạo
+    book.quantity -= data.quantity;
+    await book.save();
+
+    const now = new Date();
 
     const borrow = new Borrow({
-      readerId: data.readerId,
-      bookId: book._id, //  Lưu ObjectId của book
-      quantity: data.quantity || 1,
-      borrowDate: data.borrowDate || new Date(),
-      returnDate: data.returnDate || new Date(Date.now() + 7*24*60*60*1000),
-      status: "processing"
+      readerId: data.readerId,  // String
+      bookId: data.bookId,      // String
+      quantity: data.quantity,
+      borrowDate: now,          
+      returnDate: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000),
+      status: "processing",
     });
 
-    const saved = await borrow.save();
-    
-    // Populate để trả về đầy đủ thông tin
-    return await Borrow.findById(saved._id)
-      .populate("bookId", "bookId title author thumbnail price")
-      .populate("readerId", "firstName lastName email");
+    return await borrow.save();
   }
 
+  // Lấy tất cả borrow
   static async getAllBorrows() {
-    return await Borrow.find()
-      .populate("bookId", "bookId title author thumbnail price")
-      .populate("readerId", "firstName lastName email")
-      .sort({ createdAt: -1 });
+    const borrows = await Borrow.find().sort({ createdAt: -1 });
+
+    const now = new Date();
+
+    for (let b of borrows) {
+      if (b.status === "accepted" && now > b.returnDate) {
+        const overdueDays = Math.floor(
+          (now - b.returnDate) / (1000 * 60 * 60 * 24)
+        );
+        b.fine = overdueDays * 2000;
+        b.status = "overdue";
+        await b.save();
+      }
+    }
+
+    return borrows;
   }
 
   static async getBorrowById(id) {
     if (!id) throw ApiError.badRequest("Borrow ID is required");
-    const borrow = await Borrow.findById(id) //  Dùng findById với _id
-      .populate("bookId", "bookId title author thumbnail price")
-      .populate("readerId", "firstName lastName email");
+
+    const borrow = await Borrow.findById(id);
     if (!borrow) throw ApiError.notFound("Borrow record not found");
+
     return borrow;
   }
 
   static async getBorrowsByReaderId(readerId) {
     if (!readerId) throw ApiError.badRequest("Reader ID is required");
-    return await Borrow.find({ readerId })
-      .populate("bookId", "bookId title author thumbnail price")
-      .populate("readerId", "firstName lastName email")
-      .sort({ createdAt: -1 });
+
+    return await Borrow.find({ readerId }).sort({ createdAt: -1 });
   }
 
+  // Cập nhật borrow
   static async updateBorrow(id, data) {
     if (!id) throw ApiError.badRequest("Borrow ID is required");
+
     const borrow = await Borrow.findById(id);
-    if (!borrow) throw ApiError.notFound("Borrow record not found");
-  
+    if (!borrow) throw ApiError.notFound("Borrow not found");
+
     const book = await Book.findById(borrow.bookId);
     if (!book) throw ApiError.notFound("Book not found");
-  
+
     const oldStatus = borrow.status;
     const newStatus = data.status;
-  
-    // Kiểm tra số lượng hợp lệ
-    if (borrow.quantity < 1) {
-      throw ApiError.badRequest("Borrow quantity must be at least 1");
+
+    // ACCEPT
+    if (oldStatus === "processing" && newStatus === "accepted") {
+      const start = new Date();
+      borrow.borrowDate = start;
+      borrow.returnDate = new Date(start.getTime() + 7 * 24 * 60 * 60 * 1000);
+      borrow.status = "accepted";
     }
-  
-    // Khi admin accept => xác nhận ngày mượn thật
-    if (oldStatus !== "accepted" && newStatus === "accepted") {
-      if (borrow.quantity > book.quantity) {
-        throw ApiError.badRequest("Not enough books in stock");
-      }
-  
-      book.quantity -= borrow.quantity;
+
+    // REFUSE
+    if (oldStatus !== "refused" && newStatus === "refused") {
+      book.quantity += borrow.quantity;
       await book.save();
-  
-      borrow.borrowDate = new Date();
-      borrow.returnDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      borrow.status = "refused";
     }
-  
-    // Khi returned => hoàn sách
+
+    // CANCEL
+    if (oldStatus === "processing" && newStatus === "cancelled") {
+      book.quantity += borrow.quantity;
+      await book.save();
+      borrow.status = "cancelled";
+    }
+
+    // RETURNED
     if (oldStatus === "accepted" && newStatus === "returned") {
       book.quantity += borrow.quantity;
       await book.save();
+      borrow.status = "returned";
     }
-  
-    // Khi refused => hoàn sách
-    if (oldStatus === "accepted" && newStatus === "refused") {
-      book.quantity += borrow.quantity;
-      await book.save();
-    }
-  
-    // Tính tiền phạt nếu trễ
-    if (
-      data.status === "overdue" ||
-      (borrow.status === "accepted" && new Date() > borrow.returnDate)
-    ) {
+
+    // OVERDUE
+    if (newStatus === "overdue") {
       const overdueDays = Math.max(
         0,
         Math.floor((new Date() - borrow.returnDate) / (1000 * 60 * 60 * 24))
       );
       borrow.fine = overdueDays * 2000;
+      borrow.status = "overdue";
     }
-  
-    Object.assign(borrow, data);
-    const updated = await borrow.save();
-  
-    return await Borrow.findById(updated._id)
-      .populate("bookId", "bookId title author thumbnail price")
-      .populate("readerId", "firstName lastName email");
+
+    await borrow.save();
+    return borrow;
   }
-  
 
   static async deleteBorrow(id) {
     if (!id) throw ApiError.badRequest("Borrow ID is required");
-    const borrow = await Borrow.findById(id); //  Dùng findById
+
+    const borrow = await Borrow.findById(id);
     if (!borrow) throw ApiError.notFound("Borrow record not found");
 
-    // Nếu borrow đã được accepted, hoàn lại số lượng sách
+    // Trả sách nếu đã accept
     if (borrow.status === "accepted") {
       const book = await Book.findById(borrow.bookId);
       if (book) {
@@ -134,27 +140,9 @@ class BorrowService {
     }
 
     await Borrow.deleteOne({ _id: id });
-    return { message: "Borrow record deleted successfully" };
-  }
 
-  // Sửa huỷ phiếu mượn 
-  static async cancelBorrow(id) {
-    if (!id) throw ApiError.badRequest("Borrow ID is required");
-    const borrow = await Borrow.findById(id);
-    if (!borrow) throw ApiError.notFound("Borrow record not found");
-  
-    if (borrow.status !== "processing") {
-      throw ApiError.badRequest("Only processing borrows can be cancelled");
-    }
-  
-    borrow.status = "cancelled";
-    await borrow.save();
-  
-    return await Borrow.findById(id)
-      .populate("bookId", "title author thumbnail")
-      .populate("readerId", "firstName lastName email");
+    return { message: "Borrow deleted" };
   }
-  
 }
 
 module.exports = BorrowService;

@@ -27,7 +27,7 @@ const bookSchema = new mongoose.Schema(
       type: Number,
     },
     publisherId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "Publisher",
       required: true,
     },
@@ -38,6 +38,11 @@ const bookSchema = new mongoose.Schema(
     thumbnail: {
       type: String, // URL ảnh bìa sách
     },
+
+    description: {
+      type: String,
+    },
+    
     slug: {
       type: String,
       slug: "title",
