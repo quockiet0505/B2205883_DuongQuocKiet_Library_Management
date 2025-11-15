@@ -21,6 +21,14 @@ export const adminRoutes = [
     component: Register,
     meta: { guest: true },
   },
+
+  {
+    path: '/admin',
+    name: 'AdminDashboardMain',
+    component: Dashboard,
+    meta: { requiresAuth: true },
+  },
+  
   {
     path: '/admin/dashboard',
     name: 'AdminDashboard',

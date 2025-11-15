@@ -11,15 +11,29 @@ class ReaderService {
   // Lấy doc gia theo ID (_id MongoDB)
   static async getReaderById(id) {
     if (!id) throw ApiError.badRequest("Reader ID is required");
-
+  
     console.log("[Service] getReaderById input id:", id);
-
-    const reader = await Reader.findById(id); 
+  
+    let reader = null;
+  
+    //  _id (ObjectId)
+    try {
+      reader = await Reader.findById(id);
+    } catch (e) {
+      // Không tìm được 
+    }
+  
+    // readerId: 
+    if (!reader) {
+      reader = await Reader.findOne({ readerId: id });
+    }
+  
     if (!reader) throw ApiError.notFound("Reader not found");
-
-    console.log("[Service] Found reader:", reader._id);
+  
+    console.log("[Service] Found reader:", reader.readerId || reader._id);
     return reader;
   }
+  
 
   // Cập nhật doc gia theo _id
   static async updateReader(id, data) {

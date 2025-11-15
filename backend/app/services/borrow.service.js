@@ -3,13 +3,13 @@ const Book = require("../models/book.model");
 const ApiError = require("../utils/api-error");
 
 class BorrowService {
-
   // Tạo bản ghi mượn 
   static async createBorrow(data) {
     if (!data.readerId || !data.bookId)
       throw ApiError.badRequest("Reader ID and Book ID are required");
 
-    const book = await Book.findById(data.bookId);
+    // Tìm sách theo bookId dạng "B001"
+    const book = await Book.findOne({ bookId: data.bookId });
     if (!book) throw ApiError.notFound("Book not found");
 
     if (data.quantity > book.quantity)
@@ -22,10 +22,10 @@ class BorrowService {
     const now = new Date();
 
     const borrow = new Borrow({
-      readerId: data.readerId,  // String
-      bookId: data.bookId,      // String
+      readerId: data.readerId,
+      bookId: data.bookId,
       quantity: data.quantity,
-      borrowDate: now,          
+      borrowDate: now,
       returnDate: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000),
       status: "processing",
     });
@@ -75,7 +75,8 @@ class BorrowService {
     const borrow = await Borrow.findById(id);
     if (!borrow) throw ApiError.notFound("Borrow not found");
 
-    const book = await Book.findById(borrow.bookId);
+    // Tìm sách theo mã "B001"
+    const book = await Book.findOne({ bookId: borrow.bookId });
     if (!book) throw ApiError.notFound("Book not found");
 
     const oldStatus = borrow.status;
@@ -130,9 +131,9 @@ class BorrowService {
     const borrow = await Borrow.findById(id);
     if (!borrow) throw ApiError.notFound("Borrow record not found");
 
-    // Trả sách nếu đã accept
+    // Nếu borrow được accept → trả sách lại
     if (borrow.status === "accepted") {
-      const book = await Book.findById(borrow.bookId);
+      const book = await Book.findOne({ bookId: borrow.bookId });
       if (book) {
         book.quantity += borrow.quantity;
         await book.save();

@@ -112,12 +112,20 @@ export default {
         return;
       }
 
+      if (!this.book.bookId) {
+        this.$toast("Invalid book data: missing bookId", "error");
+        return;
+      }
+
       if (
         !this.borrowForm.quantity ||
         this.borrowForm.quantity < 1 ||
         this.borrowForm.quantity > this.book.quantity
       ) {
-        this.$toast(`Please enter a valid quantity (1–${this.book.quantity})`, "error");
+        this.$toast(
+          `Please enter a valid quantity (1–${this.book.quantity})`,
+          "error"
+        );
         return;
       }
 
@@ -126,7 +134,7 @@ export default {
       try {
         await this.$store.dispatch("reader/createBorrow", {
           readerId,
-          bookId: this.book._id || this.book.bookId || this.book.id,
+          bookId: this.book.bookId,   // ✔ LUÔN DÙNG B001
           quantity: this.borrowForm.quantity,
           borrowDate: this.borrowForm.borrowDate,
           returnDate: this.borrowForm.returnDate,
@@ -136,7 +144,6 @@ export default {
 
         this.$toast("Borrow request sent successfully!");
         this.$router.push("/reader/history");
-
       } catch (err) {
         this.$toast(
           err.response?.data?.message ||

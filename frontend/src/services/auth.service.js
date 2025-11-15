@@ -69,7 +69,7 @@ export default {
     if (token) localStorage.setItem("readerToken", token);
 
     const reader = res.data?.reader;
-    const id = reader?.id || reader?._id;
+    const id = reader?.readerId || reader?._id;
     if (id) localStorage.setItem("readerId", id);
 
     return res.data;
@@ -82,7 +82,7 @@ export default {
     if (token) localStorage.setItem("readerToken", token);
 
     const reader = res.data?.reader;
-    const id = reader?.id || reader?._id;
+    const id = reader?.readerId || reader?._id;
     if (id) localStorage.setItem("readerId", id);
 
     return res.data;

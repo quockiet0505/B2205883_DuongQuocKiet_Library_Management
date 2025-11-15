@@ -31,8 +31,11 @@ export default {
   },
 
   async created() {
-    const token = authService.getReaderToken();
-    const id = authService.getReaderId();
+    const token = localStorage.getItem("readerToken"); //  Trả ra token JWT
+    const id = localStorage.getItem("readerId");
+
+    console.log("TOKEN:", token);
+    console.log("READER ID:", id);
 
     if (!token || !id) {
       this.$toast("Bạn chưa đăng nhập!", "error");
@@ -42,7 +45,14 @@ export default {
     this.readerId = id;
 
     try {
-      this.readerInfo = await readerService.getReaderById(id);
+      const res = await readerService.getReaderById(id);
+
+      console.log("API RES:", res);
+
+      this.readerInfo = res.data || res;
+
+      console.log("SET readerInfo:", this.readerInfo);
+
     } catch (e) {
       this.$toast(
         e.response?.data?.message || "Không thể tải thông tin người dùng.",
@@ -55,12 +65,12 @@ export default {
     async onSubmit(payload) {
       try {
         const res = await readerService.updateReader(this.readerId, payload);
-        const updated = res.reader || res.data || res;
+
+        const updated = res.data || res;
 
         this.readerInfo = { ...this.readerInfo, ...updated };
 
         this.$toast("Cập nhật hồ sơ thành công!");
-
       } catch (e) {
         this.$toast(
           e.response?.data?.message || "Cập nhật hồ sơ thất bại!",

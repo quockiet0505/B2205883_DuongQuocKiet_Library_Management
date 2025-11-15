@@ -25,7 +25,7 @@ const actions = {
       commit("setToken", res.data.token);
       commit("setError", null);
       localStorage.setItem("readerToken", res.data.token);
-      localStorage.setItem("readerId", res.data.reader._id);
+      localStorage.setItem("readerId", res.data.reader.readerId);
       return res.data;
     } catch (error) {
       const message = error.response?.data?.message || "Register failed";
@@ -41,7 +41,7 @@ const actions = {
       commit("setToken", res.data.token);
       commit("setError", null);
       localStorage.setItem("readerToken", res.data.token);
-      localStorage.setItem("readerId", res.data.reader._id);
+      localStorage.setItem("readerId", res.data.reader.readerId);
       return res.data;
     } catch (error) {
       const message = error.response?.data?.message || "Login failed";

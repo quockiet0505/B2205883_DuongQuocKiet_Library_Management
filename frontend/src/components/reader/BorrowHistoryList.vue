@@ -21,14 +21,18 @@
         </thead>
 
         <tbody>
-          <tr v-for="b in borrows" :key="b._id">
-            <td>
-              <div v-if="b.bookId && typeof b.bookId === 'object'">
-                <div class="fw-bold">{{ b.bookId.title }}</div>
-                <small class="text-muted">{{ b.bookId.author }}</small>
-              </div>
-              <!-- <div v-else class="text-warning">Book ID: {{ b.bookId }}</div> -->
-            </td>
+          <tr v-for="b in mergedBorrows" :key="b._id">
+  <td>
+    <div v-if="b.bookObj">
+      <div class="fw-bold">{{ b.bookObj.title }}</div>
+      <small class="text-muted">{{ b.bookObj.author }}</small>
+    </div>
+    <div v-else>
+      <span class="text-warning">Book ID: {{ b.bookId }}</span>
+    </div>
+  </td>
+
+
 
             <td class="text-center">{{ b.quantity }}</td>
 
@@ -51,11 +55,15 @@
             </td>
 
             <td>
-              <span :class="statusClass(b.status)">{{ formatStatus(b.status) }}</span>
+              <span :class="statusClass(b.status)">
+                {{ formatStatus(b.status) }}
+              </span>
             </td>
 
             <td>
-              <span v-if="b.fine > 0" class="text-danger fw-bold">{{ formatPrice(b.fine) }}</span>
+              <span v-if="b.fine > 0" class="text-danger fw-bold">
+                {{ formatPrice(b.fine) }}
+              </span>
               <span v-else class="text-muted">—</span>
             </td>
 
@@ -79,7 +87,6 @@
       </div>
     </div>
 
-    <!-- Confirm modal reuse -->
     <ConfirmModal ref="confirmBox" />
   </div>
 </template>
@@ -87,29 +94,53 @@
 <script>
 import api from "@/services/api";
 import ConfirmModal from "@/components/common/ConfirmModal.vue";
+import bookService from "@/services/book.service";
 
 export default {
   name: "BorrowHistoryList",
-
   components: { ConfirmModal },
 
   props: {
-    borrows: { type: Array, default: () => [] },
+    borrows:  Array,
+    books: Array,  
   },
 
   data() {
     return {
-      cancelId: null, // khai báo reactive
+      cancelId: null,
+      
     };
   },
 
   computed: {
+    mergedBorrows() {
+      return this.borrows.map(b => ({
+        ...b,
+        bookObj: this.books.find(book => book.bookId === b.bookId) || null
+      }));
+    },
+
     totalFine() {
       return this.borrows.reduce((sum, b) => sum + (b.fine || 0), 0);
     },
   },
 
   methods: {
+    async loadBooks() {
+      const ids = [...new Set(this.borrows.map(b => b.bookId))];
+
+      for (const id of ids) {
+        try {
+          const res = await bookService.getBookById(id);  
+          
+          this.booksMap[id] = res.data;                   
+          
+        } catch (err) {
+          console.warn("KHÔNG TẢI ĐƯỢC SÁCH ID:", id);
+        }
+      }
+    },
+
     format(d) {
       if (!d) return "-";
       return new Date(d).toLocaleDateString("en-GB");
@@ -134,43 +165,31 @@ export default {
     },
 
     formatStatus(s) {
-      const map = {
+      return {
         processing: "Processing",
         accepted: "Accepted",
         refused: "Refused",
         returned: "Returned",
         overdue: "Overdue",
         cancelled: "Cancelled",
-      };
-      return map[s] || s;
+      }[s] || s;
     },
 
     statusClass(s) {
-      switch (s) {
-        case "processing":
-          return "badge badge-processing";
-        case "accepted":
-          return "badge badge-accepted";
-        case "refused":
-          return "badge badge-refused";
-        case "returned":
-          return "badge badge-returned";
-        case "overdue":
-          return "badge badge-overdue";
-        case "cancelled":
-          return "badge bg-secondary";
-        default:
-          return "badge badge-light";
-      }
+      return {
+        processing: "badge badge-processing",
+        accepted: "badge badge-accepted",
+        refused: "badge badge-refused",
+        returned: "badge badge-returned",
+        overdue: "badge badge-overdue",
+        cancelled: "badge bg-secondary",
+      }[s] || "badge badge-light";
     },
 
-    // mở modal xác nhận, lưu id để callback xử lý
     openConfirmModal(id) {
       this.cancelId = id;
-      if (!this.$refs.confirmBox) {
-        console.error("ConfirmModal ref not found");
-        return;
-      }
+
+      if (!this.$refs.confirmBox) return;
 
       this.$refs.confirmBox.open(
         "Are you sure you want to cancel this borrow request?",
@@ -180,22 +199,14 @@ export default {
 
     async cancelBorrow() {
       const id = this.cancelId;
-      if (!id) {
-        console.warn("cancelBorrow called but cancelId is null");
-        return;
-      }
+      if (!id) return;
 
       const idx = this.borrows.findIndex((b) => b._id === id);
-      if (idx === -1) {
-        console.warn("Borrow item not found in list for id:", id);
-        return;
-      }
+      if (idx === -1) return;
 
       this.borrows[idx]._cancelling = true;
 
       try {
-        // log request so bạn kiểm tra network tab dễ hơn
-        console.log("Calling cancel endpoint for borrow id:", id);
         const res = await api.patch(`/borrow/${id}/cancel`);
         const updated = res.data?.data;
 
@@ -207,10 +218,8 @@ export default {
 
         this.$toast("Borrow request cancelled successfully!");
       } catch (e) {
-        console.error("Cancel borrow error:", e);
-        // show backend message if any
         this.$toast(
-          e.response?.data?.message || e.message || "Failed to cancel borrow request.",
+          e.response?.data?.message || e.message,
           "error"
         );
       } finally {

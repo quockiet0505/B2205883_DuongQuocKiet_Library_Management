@@ -174,9 +174,20 @@ export default {
           readerService.getAllReaders(),
         ]);
 
-        this.borrows = borrowsRes.data || borrowsRes;
         this.books = booksRes.data || booksRes;
         this.readers = readersRes.data || readersRes;
+
+        console.log("BORROW RAW:", borrowsRes.data || borrowsRes);
+
+        //  MAP READER + BOOK OBJECT
+        this.borrows = (borrowsRes.data || borrowsRes).map((b) => {
+          return {
+            ...b,
+            readerId: this.readers.find((r) => r._id === b.readerId),
+            bookId: this.books.find((bk) => bk.bookId === b.bookId),
+          };
+          
+        });
 
       } catch (err) {
         console.error(err);
@@ -184,7 +195,8 @@ export default {
       } finally {
         this.loading = false;
       }
-    },
+    }
+    ,
 
     handleSearch(q) {
       this.searchQuery = q;

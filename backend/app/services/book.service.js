@@ -59,11 +59,24 @@ class BookService {
     return await Book.find(); // không populate nữa
   }
 
+  
   // Lấy sách theo ID
   static async getBookById(id) {
     if (!id) throw ApiError.badRequest("Book ID is required");
-    const book = await Book.findById(id);
+
+    let book = null;
+
+    try{
+       book = await Book.findById(id);
+    }
+    catch (e){}
+
+    if(!book){
+      book = await Book.findOne({ bookId: id });
+    }
+    
     if (!book) throw ApiError.notFound("Book not found");
+    
     return book;
   }
 
