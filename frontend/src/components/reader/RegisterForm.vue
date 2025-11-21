@@ -60,7 +60,11 @@
       </div>
 
 
-      <button class="btn btn-success w-100">Register</button>
+      <button class="btn btn-success w-100 ">Register</button>
+      <p class="mt-3 text-center small">
+          Don't have an account?
+          <router-link to="/reader/login" class="no-underline">Register</router-link>
+        </p>
     </form>
   </div>
 </template>
@@ -104,3 +108,9 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+  .no-underline {
+  text-decoration: none !important;
+}
+</style>

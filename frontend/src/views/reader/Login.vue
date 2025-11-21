@@ -21,7 +21,7 @@
 
         <p class="mt-3 text-center small">
           Don't have an account?
-          <router-link to="/reader/register">Register</router-link>
+          <router-link to="/reader/register" class="no-underline">Register</router-link>
         </p>
       </div>
     </div>
@@ -56,3 +56,11 @@ export default {
   },
 };
 </script>
+
+
+<style scoped>
+  .no-underline {
+  text-decoration: none !important;
+}
+
+</style>

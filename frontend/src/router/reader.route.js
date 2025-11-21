@@ -6,6 +6,9 @@ import Profile from '@/views/reader/Profile.vue';
 import Login from '@/views/reader/Login.vue';
 import Register from '@/views/reader/Register.vue';
 
+import AboutPage from '@/views/reader/About.vue';
+import ContactPage from '@/views/reader/Contact.vue';
+
 export const readerRoutes = [
   {
     path: '/reader',
@@ -41,5 +44,17 @@ export const readerRoutes = [
     name: 'ReaderRegister',
     component: Register,
     meta: { guest: true },
+  },
+
+  {
+    path: '/reader/about',
+    name: 'ReaderAbout',
+    component: AboutPage,
+  },
+
+  {
+    path: '/reader/contact',
+    name: 'ReaderContact',
+    component: ContactPage,
   },
 ];

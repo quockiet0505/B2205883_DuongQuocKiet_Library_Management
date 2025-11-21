@@ -15,6 +15,16 @@
           <input v-model="form.address" type="text" class="form-control" />
         </div>
 
+        <div class="col-md-6">
+          <label class="form-label">Phone</label>
+          <input v-model="form.phone" type="text" class="form-control" />
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Email</label>
+          <input v-model="form.email" type="email" class="form-control" />
+        </div>
+
         <div class="col-12 text-end mt-3">
           <button type="submit" class="btn btn-success me-2">
             {{ isEdit ? "Save Changes" : "Add Publisher" }}
@@ -34,32 +44,52 @@
 export default {
   name: "PublisherForm",
   props: { publisher: Object },
+
   data() {
     return {
-      form: { name: "", address: "" },
+      form: {
+        name: "",
+        address: "",
+        phone: "",
+        email: "",
+      },
     };
   },
+
   computed: {
     isEdit() {
       return !!this.publisher?._id;
     },
   },
+
   watch: {
     publisher: {
       immediate: true,
       handler(val) {
         this.form = val
-          ? { name: val.name || "", address: val.address || "" }
-          : { name: "", address: "" };
+          ? {
+              name: val.name || "",
+              address: val.address || "",
+              phone: val.phone || "",
+              email: val.email || "",
+            }
+          : {
+              name: "",
+              address: "",
+              phone: "",
+              email: "",
+            };
       },
     },
   },
+
   methods: {
     handleSubmit() {
       if (!this.form.name.trim()) {
         this.$toast("Publisher name is required!", "error");
         return;
       }
+
       this.$emit("save", { ...this.form });
     },
   },

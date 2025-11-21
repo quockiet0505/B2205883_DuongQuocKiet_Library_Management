@@ -183,7 +183,7 @@ export default {
         this.borrows = (borrowsRes.data || borrowsRes).map((b) => {
           return {
             ...b,
-            readerId: this.readers.find((r) => r._id === b.readerId),
+            readerId: this.readers.find((r) => r.readerId === b.readerId || r._id === b.readerId),
             bookId: this.books.find((bk) => bk.bookId === b.bookId),
           };
           
