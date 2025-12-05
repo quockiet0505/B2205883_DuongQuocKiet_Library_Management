@@ -38,16 +38,17 @@ class BorrowService {
     const borrows = await Borrow.find().sort({ createdAt: -1 });
 
     const now = new Date();
-
+    console.log("Checking for overdue borrows at", now);
     for (let b of borrows) {
-      if (b.status === "accepted" && now > b.returnDate) {
-        const overdueDays = Math.floor(
-          (now - b.returnDate) / (1000 * 60 * 60 * 24)
-        );
+      if ((b.status === "accepted" || b.status === "overdue") && now > b.returnDate) {
+        const overdueDays = Math.floor((now - b.returnDate) / (1000 * 60 * 60 * 24));
         b.fine = overdueDays * 2000;
         b.status = "overdue";
+
+        console.log(`Borrow ${b._id} is overdue by ${overdueDays} days, fine updated to ${b.fine}`);
         await b.save();
-      }
+    }
+    
     }
 
     return borrows;
@@ -86,7 +87,7 @@ class BorrowService {
     if (oldStatus === "processing" && newStatus === "accepted") {
       const start = new Date();
       borrow.borrowDate = start;
-      borrow.returnDate = new Date(start.getTime() + 7 * 24 * 60 * 60 * 1000);
+      borrow.returnDate = new Date(start.getTime() + 14 * 24 * 60 * 60 * 1000);
       borrow.status = "accepted";
     }
 
@@ -105,11 +106,15 @@ class BorrowService {
     }
 
     // RETURNED
-    if (oldStatus === "accepted" && newStatus === "returned") {
+    if ((oldStatus === "accepted" || oldStatus === "overdue") && newStatus === "returned") {
+      // Trả sách về kho
       book.quantity += borrow.quantity;
       await book.save();
+
       borrow.status = "returned";
+      // borrow.fine = 0; 
     }
+
 
     // OVERDUE
     if (newStatus === "overdue") {
@@ -131,7 +136,7 @@ class BorrowService {
     const borrow = await Borrow.findById(id);
     if (!borrow) throw ApiError.notFound("Borrow record not found");
 
-    // Nếu borrow được accept → trả sách lại
+    // Nếu borrow được accept  trả sách lại
     if (borrow.status === "accepted") {
       const book = await Book.findOne({ bookId: borrow.bookId });
       if (book) {
@@ -144,6 +149,32 @@ class BorrowService {
 
     return { message: "Borrow deleted" };
   }
+
+
+  static async cancelBorrow(id) {
+    if (!id) throw ApiError.badRequest("Borrow ID is required");
+  
+    const borrow = await Borrow.findById(id);
+    if (!borrow) throw ApiError.notFound("Borrow not found");
+  
+    // Chỉ được hủy khi trạng thái là "processing"
+    if (borrow.status !== "processing") {
+      throw ApiError.badRequest("Only pending borrow requests can be cancelled");
+    }
+  
+    // Trả sách lại kho
+    const book = await Book.findOne({ bookId: borrow.bookId });
+    if (book) {
+      book.quantity += borrow.quantity;
+      await book.save();
+    }
+  
+    borrow.status = "cancelled";
+    await borrow.save();
+  
+    return borrow;
+  }
+  
 }
 
 module.exports = BorrowService;

@@ -30,6 +30,11 @@ const borrowSchema = new mongoose.Schema(
       enum: ["processing", "accepted", "refused", "returned", "overdue", "cancelled"],
       default: "processing",
     },
+
+    fine: {
+      type: Number,
+      default: 0,
+    },
     
   },
   { timestamps: true }

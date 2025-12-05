@@ -59,11 +59,32 @@
             <td>{{ formatDate(b.returnDate) }}</td>
 
             <td>
-              <span :class="getBadge(b.status)">{{ b.status }}</span>
-              <div v-if="b.status === 'overdue'" class="text-danger small">
-                Fine: {{ b.fine }}đ
-              </div>
-            </td>
+
+<!-- RETURNED (OVERDUE) -->
+<div v-if="b.status === 'returned' && b.fine > 0">
+  <span class="badge badge-returned-overdue">
+    Returned (Overdue)
+  </span>
+  <div class="text-danger small">Fine: {{ b.fine }}đ</div>
+</div>
+
+<!-- RETURNED NORMAL -->
+<div v-else-if="b.status === 'returned'">
+  <span class="badge bg-secondary">Returned</span>
+</div>
+
+<!-- OVERDUE -->
+<div v-else-if="b.status === 'overdue'">
+  <span class="badge bg-dark">Overdue</span>
+  <div class="text-danger small">Fine: {{ b.fine }}đ</div>
+</div>
+
+<!-- OTHER STATUSES -->
+<div v-else>
+  <span :class="getBadge(b.status)">{{ b.status }}</span>
+</div>
+
+</td>
 
             <td>
               <!-- PROCESSING -->
@@ -142,10 +163,9 @@ import bookService from "@/services/book.service";
 import readerService from "@/services/reader.service";
 import ConfirmModal from "@/components/common/ConfirmModal.vue";
 
-
 export default {
   name: "BorrowList",
-  components: { SearchBar, BorrowForm, ConfirmModal  },
+  components: { SearchBar, BorrowForm, ConfirmModal },
 
   data() {
     return {
@@ -155,6 +175,7 @@ export default {
       showForm: false,
       searchQuery: "",
       loading: false,
+      deleteId: null,
     };
   },
 
@@ -194,26 +215,23 @@ export default {
         this.books = booksRes.data || booksRes;
         this.readers = readersRes.data || readersRes;
 
-        console.log("BORROW RAW:", borrowsRes.data || borrowsRes);
-
-        //  MAP READER + BOOK OBJECT
         this.borrows = (borrowsRes.data || borrowsRes).map((b) => {
           return {
             ...b,
-            readerId: this.readers.find((r) => r.readerId === b.readerId || r._id === b.readerId),
+            readerId: this.readers.find(
+              (r) => r.readerId === b.readerId || r._id === b.readerId
+            ),
             bookId: this.books.find((bk) => bk.bookId === b.bookId),
           };
-          
         });
 
       } catch (err) {
         console.error(err);
-        alert("Failed to load borrow data!");
+        this.$toast("Failed to load borrow data!", "error");
       } finally {
         this.loading = false;
       }
-    }
-    ,
+    },
 
     handleSearch(q) {
       this.searchQuery = q;
@@ -230,41 +248,46 @@ export default {
     async createBorrow(data) {
       try {
         await borrowService.createBorrow(data);
-        alert("Borrow created successfully!");
+        this.$toast("Borrow created successfully!", "success");
         this.closeForm();
         await this.fetchData();
+
       } catch (e) {
         console.error(e);
-        alert("Failed to create borrow record!");
+        this.$toast("Failed to create borrow record!", "error");
       }
     },
 
     async updateStatus(id, status) {
       try {
         await borrowService.updateBorrow(id, { status });
-        alert("Status updated successfully!");
+        this.$toast("Status updated successfully!", "success");
         await this.fetchData();
+
       } catch (e) {
         console.error(e);
-        alert("Failed to update status");
+        this.$toast("Failed to update status!", "error");
       }
     },
 
-    //Xoa
     async deleteBorrow() {
       try {
         await borrowService.deleteBorrow(this.deleteId);
-        this.$toast("Borrow record deleted!");   
+        this.$toast("Borrow record deleted!", "success");
         await this.fetchData();
+
       } catch (err) {
         this.$toast("Failed to delete borrow record!", "error");
       }
-    }
-    ,
+    },
 
+    openDeleteModal(id) {
+      this.deleteId = id;
 
-    formatId(id) {
-      return id ? id.slice(-6).toUpperCase() : "";
+      this.$refs.deleteBox.open(
+        "Are you sure you want to delete this borrow record?",
+        () => this.deleteBorrow()
+      );
     },
 
     formatDate(d) {
@@ -281,17 +304,6 @@ export default {
         cancelled: "badge bg-info text-dark",
       }[status];
     },
-
-    //canh bao Xoa
-    openDeleteModal(id) {
-      this.deleteId = id;
-
-      this.$refs.deleteBox.open(
-        "Are you sure you want to delete this borrow record?",
-        () => this.deleteBorrow()
-      );
-    }
-
   },
 };
 </script>
@@ -304,5 +316,10 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.badge-returned-overdue {
+  background-color: #f59e0b !important; 
+  color: #78350f !important;            
 }
 </style>

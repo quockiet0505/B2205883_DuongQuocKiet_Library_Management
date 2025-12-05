@@ -6,11 +6,11 @@
          <form @submit.prevent="handleLogin">
            <div class="mb-3">
              <label>Email</label>
-             <input type="email" v-model="email" class="form-control" required />
+             <input type="email" v-model="email" class="form-control"  />
            </div>
            <div class="mb-3">
              <label>Password</label>
-             <input type="password" v-model="password" class="form-control" required />
+             <input type="password" v-model="password" class="form-control"  />
            </div>
            <button class="btn btn-dark w-100">Login</button>
          </form>
@@ -30,13 +30,24 @@
      methods: {
        ...mapActions("admin", ["login"]),
        async handleLogin() {
-         try {
-           await this.login({ email: this.email, password: this.password });
-           this.$router.push("/admin/dashboard");
-         } catch (err) {
-           alert("Invalid credentials");
-         }
-       },
+          if (!this.email) {
+            this.$toast("Email is required", "error");
+            return;
+          }
+          if (!this.password) {
+            this.$toast("Password is required", "error");
+            return;
+          }
+
+          try {
+            await this.login({ email: this.email, password: this.password });
+            this.$router.push("/admin/dashboard");
+          } catch (err) {
+            const msg = err.response?.data?.message || "Login failed";
+            this.$toast(msg, "error");
+          }
+        }
+        ,
      },
    };
    </script>

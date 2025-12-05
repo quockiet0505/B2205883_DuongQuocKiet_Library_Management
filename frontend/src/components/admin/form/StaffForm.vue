@@ -25,14 +25,14 @@
              <input v-model="form.address" class="form-control" />
            </div>
    
-           <div class="col-md-6">
-             <label class="form-label">Role</label>
-             <select v-model="form.position" class="form-select">
-               <option value="Staff">Staff</option>
-               <option value="Admin">Admin</option>
-               <option value="Manager">Manager</option>
-             </select>
-           </div>
+           <!--  nếu người đang sửa là Admin -->
+          <div class="col-md-6" v-if="showRoleField">
+            <label class="form-label">Role</label>
+            <select v-model="form.position" class="form-select">
+              <option value="Staff">Staff</option>
+              <option value="Admin">Admin</option>
+            </select>
+          </div>
 
            <div class="col-md-6"></div>
    
@@ -85,6 +85,11 @@
          return !!this.staff?._id;
        },
      },
+
+     showRoleField() {
+        if (!this.isEdit) return true; // create 
+        return this.staff.position === "Admin"; // edit 
+      },
    
      watch: {
        staff: {

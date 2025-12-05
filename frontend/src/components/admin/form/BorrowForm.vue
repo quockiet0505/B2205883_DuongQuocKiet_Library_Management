@@ -62,9 +62,9 @@ export default {
 
   data() {
     const today = new Date().toISOString().split("T")[0];
-    const next7 = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-      .toISOString()
-      .split("T")[0];
+    const next14 = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0];
 
     return {
       form: {

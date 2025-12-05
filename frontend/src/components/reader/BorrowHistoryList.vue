@@ -55,17 +55,38 @@
             </td>
 
             <td>
-              <span :class="statusClass(b.status)">
-                {{ formatStatus(b.status) }}
-              </span>
-            </td>
+            <!-- Returned (Overdue) -->
+            <span v-if="b.status === 'returned' && b.fine > 0"
+                  class="badge badge-returned-overdue">
+              Returned (Overdue)
+            </span>
 
-            <td>
-              <span v-if="b.fine > 0" class="text-danger fw-bold">
-                {{ formatPrice(b.fine) }}
-              </span>
-              <span v-else class="text-muted">—</span>
-            </td>
+
+            <!-- Returned normal -->
+            <span v-else-if="b.status === 'returned'"
+                  class="badge badge-returned">
+              Returned
+            </span>
+
+            <!-- Overdue -->
+            <span v-else-if="b.status === 'overdue'"
+                  class="badge badge-overdue">
+              Overdue
+            </span>
+
+            <!-- Others -->
+            <span v-else :class="statusClass(b.status)">
+              {{ formatStatus(b.status) }}
+            </span>
+          </td>
+
+          <td>
+            <span v-if="b.fine > 0" class="text-danger fw-bold">
+              {{ formatPrice(b.fine) }}
+            </span>
+            <span v-else class="text-muted">—</span>
+          </td>
+
 
             <td>
               <button
@@ -82,7 +103,7 @@
         </tbody>
       </table>
 
-      <div v-if="totalFine > 0" class="alert alert-warning mt-3">
+      <div v-if="totalFine > 0" class="alert alert-primary mt-3">
         <strong>Total Fine:</strong> {{ formatPrice(totalFine) }}
       </div>
     </div>
@@ -263,4 +284,10 @@ export default {
   background-color: #d1d5db !important;
   color: #374151 !important;
 }
+
+.badge-returned-overdue {
+  background-color: #f59e0b !important; 
+  color: #78350f !important;            
+}
+
 </style>

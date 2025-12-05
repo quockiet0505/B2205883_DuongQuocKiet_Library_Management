@@ -7,7 +7,7 @@ const ApiError = require("../utils/api-error");
 // ------------------- STAFF -------------------
 class StaffAuthService {
   static async login({ email, password } = {}) {
-    console.log("🟢 Login attempt:", { email, password });
+    console.log(" Login attempt:", { email, password });
   
     email = (email || "").trim().toLowerCase();
     if (!email) throw ApiError.badRequest("Email is required");
@@ -23,18 +23,18 @@ class StaffAuthService {
     }
   
     //  Log password hash và kết quả so sánh bcrypt
-    console.log("🟠 DB Hash:", staff.password);
-    console.log("🟠 Comparing:", password, "vs hash...");
+    console.log(" DB Hash:", staff.password);
+    console.log(" Comparing:", password, "vs hash...");
   
     const isMatch = await bcrypt.compare(password, staff.password);
-    console.log("🧩 Compare result:", isMatch);
+    console.log(" Compare result:", isMatch);
   
     if (!isMatch) {
       console.log(" Invalid password for:", email);
       throw ApiError.unauthorized("Invalid password");
     }
   
-    console.log("🔑 JWT_SECRET:", process.env.JWT_SECRET);
+    console.log(" JWT_SECRET:", process.env.JWT_SECRET);
 
     // Nếu đúng thì tạo token
     const token = jwt.sign(
@@ -46,7 +46,7 @@ class StaffAuthService {
     staff.token = token;
     await staff.save();
   
-    console.log("✅ Login success for:", staff.email, "| Role:", staff.position);
+    console.log(" Login success for:", staff.email, "| Role:", staff.position);
   
     return {
       token,

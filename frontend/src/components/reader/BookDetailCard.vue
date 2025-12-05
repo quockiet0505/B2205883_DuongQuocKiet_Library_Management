@@ -44,7 +44,7 @@
             </div>
 
             <div class="col-md-4">
-              <label class="form-label">Expected Return Date (+7 days)</label>
+              <label class="form-label">Expected Return Date (+14 days)</label>
               <input
                 v-model="borrowForm.returnDate"
                 type="date"
@@ -81,7 +81,7 @@ export default {
   data() {
     const today = new Date().toISOString().split("T")[0];
     const returnDate = new Date();
-    returnDate.setDate(new Date().getDate() + 7);
+    returnDate.setDate(new Date().getDate() + 14);
 
     return {
       submitting: false,
