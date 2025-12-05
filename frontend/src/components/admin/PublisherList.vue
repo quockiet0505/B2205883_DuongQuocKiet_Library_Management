@@ -8,7 +8,9 @@
 
     <SearchBar placeholder="Search by name..." @search="handleSearch" />
 
-    <div v-if="!filteredPublishers.length" class="alert alert-info">No publishers found.</div>
+    <div v-if="!paginatedPublishers.length" class="alert alert-info">
+      No publishers found.
+    </div>
 
     <table v-else class="table table-striped table-bordered">
       <thead class="table-dark">
@@ -20,7 +22,7 @@
       </thead>
 
       <tbody>
-        <tr v-for="p in filteredPublishers" :key="p._id">
+        <tr v-for="p in paginatedPublishers" :key="p._id">
           <td>{{ p.name }}</td>
           <td>{{ p.address || "—" }}</td>
 
@@ -36,6 +38,13 @@
         </tr>
       </tbody>
     </table>
+
+    <!-- Pagination -->
+    <Pagination
+      v-model="page"
+      :total="filteredPublishers.length"
+      :size="pageSize"
+    />
 
     <!-- Modal -->
     <div v-if="showForm" class="modal-backdrop">
@@ -58,10 +67,11 @@
 import SearchBar from "./SearchBar.vue";
 import PublisherForm from "./form/PublisherForm.vue";
 import ConfirmModal from "@/components/common/ConfirmModal.vue";
+import Pagination from "@/components/common/Pagination.vue";
 import publisherService from "@/services/publisher.service";
 
 export default {
-  components: { SearchBar, PublisherForm, ConfirmModal },
+  components: { SearchBar, PublisherForm, ConfirmModal, Pagination },
 
   data() {
     return {
@@ -69,15 +79,28 @@ export default {
       searchQuery: "",
       editPub: null,
       showForm: false,
+
+      // pagination
+      page: 1,
+      pageSize: 10,
     };
   },
 
   computed: {
     filteredPublishers() {
-      return this.publishers.filter((p) =>
-        p.name.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
+      return this.publishers
+        .filter(p =>
+          p.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+        )
+        .sort((a, b) =>
+          new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0)
+        );
     },
+
+    paginatedPublishers() {
+      const start = (this.page - 1) * this.pageSize;
+      return this.filteredPublishers.slice(start, start + this.pageSize);
+    }
   },
 
   async created() {
@@ -86,11 +109,13 @@ export default {
 
   methods: {
     async fetchData() {
-      this.publishers = await publisherService.getAllPublishers();
+      const res = await publisherService.getAllPublishers();
+      this.publishers = res.data || res;
     },
 
     handleSearch(q) {
       this.searchQuery = q;
+      this.page = 1; // Reset page
     },
 
     openAddForm() {
@@ -134,13 +159,13 @@ export default {
             await publisherService.deletePublisher(id);
             await this.fetchData();
             this.$toast("Publisher deleted!", "success");
-          } catch (e) {
+          } catch (err) {
             this.$toast("Delete failed!", "error");
           }
         }
       );
-    },
-  },
+    }
+  }
 };
 </script>
 

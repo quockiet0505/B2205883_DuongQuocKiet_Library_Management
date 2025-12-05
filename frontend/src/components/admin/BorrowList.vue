@@ -60,31 +60,31 @@
 
             <td>
 
-<!-- RETURNED (OVERDUE) -->
-<div v-if="b.status === 'returned' && b.fine > 0">
-  <span class="badge badge-returned-overdue">
-    Returned (Overdue)
-  </span>
-  <div class="text-danger small">Fine: {{ b.fine }}đ</div>
-</div>
+              <!-- RETURNED (OVERDUE) -->
+              <div v-if="b.status === 'returned' && b.fine > 0">
+                <span class="badge badge-returned-overdue">
+                  Returned (Overdue)
+                </span>
+                <div class="text-danger small">Fine: {{ b.fine }}đ</div>
+              </div>
 
-<!-- RETURNED NORMAL -->
-<div v-else-if="b.status === 'returned'">
-  <span class="badge bg-secondary">Returned</span>
-</div>
+              <!-- RETURNED NORMAL -->
+              <div v-else-if="b.status === 'returned'">
+                <span class="badge bg-secondary">Returned</span>
+              </div>
 
-<!-- OVERDUE -->
-<div v-else-if="b.status === 'overdue'">
-  <span class="badge bg-dark">Overdue</span>
-  <div class="text-danger small">Fine: {{ b.fine }}đ</div>
-</div>
+              <!-- OVERDUE -->
+              <div v-else-if="b.status === 'overdue'">
+                <span class="badge bg-dark">Overdue</span>
+                <div class="text-danger small">Fine: {{ b.fine }}đ</div>
+              </div>
 
-<!-- OTHER STATUSES -->
-<div v-else>
-  <span :class="getBadge(b.status)">{{ b.status }}</span>
-</div>
+              <!-- OTHER STATUSES -->
+              <div v-else>
+                <span :class="getBadge(b.status)">{{ b.status }}</span>
+              </div>
 
-</td>
+              </td>
 
             <td>
               <!-- PROCESSING -->
@@ -197,7 +197,7 @@ export default {
         const book = b.bookId ? b.bookId.title.toLowerCase() : "";
 
         return reader.includes(q) || book.includes(q);
-      });
+      }).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
     },
   },
 

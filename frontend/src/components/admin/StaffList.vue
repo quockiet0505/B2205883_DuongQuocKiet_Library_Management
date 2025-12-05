@@ -116,6 +116,7 @@ export default {
         list = list.filter((s) => s._id === this.currentUser?._id);
       }
 
+      // Search
       if (this.searchQuery) {
         const q = this.searchQuery.toLowerCase();
         list = list.filter(
@@ -125,9 +126,12 @@ export default {
         );
       }
 
-      return list;
+      //  Sort theo ngày update mới nhất
+      return list.sort(
+        (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+      );
     },
-  },
+      },
 
   methods: {
     async fetchData() {

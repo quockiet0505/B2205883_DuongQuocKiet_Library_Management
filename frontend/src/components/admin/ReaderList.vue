@@ -51,7 +51,7 @@
 
     <div v-else class="alert alert-info">No readers found.</div>
 
-    <!-- Modal Form (GIỐNG BOOK 100%) -->
+    <!-- Modal Form  -->
     <div v-if="showForm" class="modal-backdrop">
       <div class="modal-dialog modal-lg">
         <div class="modal-content p-3">
@@ -98,7 +98,7 @@ export default {
       return this.readers.filter((r) =>
         (`${r.firstName} ${r.lastName}`).toLowerCase().includes(q) ||
         r.email.toLowerCase().includes(q)
-      );
+      ).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
     },
   },
 
