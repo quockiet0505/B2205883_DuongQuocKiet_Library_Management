@@ -16,6 +16,7 @@
     </div>
 
     <!-- Table -->
+     
     <div v-else>
       <div v-if="filteredBorrows.length === 0" class="alert alert-info">
         No borrow records found.
@@ -32,6 +33,8 @@
             <th>Return</th>
             <th>Status</th>
             <th style="width: 160px;">Actions</th>
+            <th style="width: 100px;">Delete</th>
+
           </tr>
         </thead>
 
@@ -97,9 +100,21 @@
                 class="text-muted"
               >No action</small>
             </td>
+
+            <!-- Xoa -->
+            <td>
+              <button
+                class="btn btn-sm btn-outline-danger"
+                @click="openDeleteModal(b._id)"
+              >
+                Delete
+              </button>
+            </td>
+
           </tr>
         </tbody>
       </table>
+      <ConfirmModal ref="deleteBox" />
     </div>
 
     <!-- Modal -->
@@ -125,10 +140,12 @@ import BorrowForm from "./form/BorrowForm.vue";
 import borrowService from "@/services/borrow.service";
 import bookService from "@/services/book.service";
 import readerService from "@/services/reader.service";
+import ConfirmModal from "@/components/common/ConfirmModal.vue";
+
 
 export default {
   name: "BorrowList",
-  components: { SearchBar, BorrowForm },
+  components: { SearchBar, BorrowForm, ConfirmModal  },
 
   data() {
     return {
@@ -233,6 +250,19 @@ export default {
       }
     },
 
+    //Xoa
+    async deleteBorrow() {
+      try {
+        await borrowService.deleteBorrow(this.deleteId);
+        this.$toast("Borrow record deleted!");   
+        await this.fetchData();
+      } catch (err) {
+        this.$toast("Failed to delete borrow record!", "error");
+      }
+    }
+    ,
+
+
     formatId(id) {
       return id ? id.slice(-6).toUpperCase() : "";
     },
@@ -251,6 +281,17 @@ export default {
         cancelled: "badge bg-info text-dark",
       }[status];
     },
+
+    //canh bao Xoa
+    openDeleteModal(id) {
+      this.deleteId = id;
+
+      this.$refs.deleteBox.open(
+        "Are you sure you want to delete this borrow record?",
+        () => this.deleteBorrow()
+      );
+    }
+
   },
 };
 </script>
